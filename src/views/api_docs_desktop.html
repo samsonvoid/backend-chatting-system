@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CollabMonitor API Documentation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#005d86",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "outline": "#737687",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary-fixed-variant": "#004c6e",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "surface-container": "#e5eeff",
+                        "tertiary-container": "#0077aa",
+                        "secondary-container": "#6063ee",
+                        "on-tertiary-container": "#edf6ff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "secondary": "#4648d4",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-fixed": "#001e2f",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#cbdbf5",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed": "#07006c",
+                        "primary": "#004ad3",
+                        "background": "#f8f9ff",
+                        "inverse-primary": "#b5c4ff",
+                        "on-error": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-container": "#f4f3ff",
+                        "outline-variant": "#c3c5d9",
+                        "primary-fixed": "#dce1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#00164e",
+                        "surface": "#f8f9ff",
+                        "on-primary-fixed-variant": "#003bae",
+                        "tertiary-fixed-dim": "#89ceff",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#1d61ff",
+                        "surface-tint": "#0050e3",
+                        "tertiary-fixed": "#c9e6ff",
+                        "on-surface-variant": "#434656",
+                        "surface-bright": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "xl": "40px",
+                        "margin-desktop": "32px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "body-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-lg-mobile": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Geist', sans-serif; }
+        .code-pane { background-color: #0f172a; }
+    </style>
+    <script>
+        if (window.innerWidth < 1024) {
+            window.location.replace("/api-docs?view=mobile");
+        }
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 1024) {
+                window.location.replace("/api-docs?view=mobile");
+            }
+        });
+    </script>
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden">
+<!-- PREMIUM IN-SYSTEM FLOATING TOAST BANNER -->
+<div id="system-toast" class="fixed top-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
+  <span id="toast-icon" class="material-symbols-outlined">info</span>
+  <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
+</div>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-margin-desktop ml-[280px] bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline docked full-width top-0 sticky z-30">
+<div class="flex items-center gap-lg flex-1">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">CollabMonitor</h1>
+<div class="relative w-full max-w-md ml-lg">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Search API endpoints..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container-highest rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-surface-variant">health_and_safety</span>
+</button>
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container-highest rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-surface-variant">dark_mode</span>
+</button>
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container-highest rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-surface-variant">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant ml-2">
+<img alt="User Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-j8avQBOoGbjL6AFg3_B0cD7hxmnYXuNMIbaGUL_Udmv33d436IbHbLaSlHfbfTQYcvqHf9N03gBSZPNSvbAT5unkVoKgdwbDTiH04R6NGaF3a2MHRImb6vSVBjTANh0JQRaw3hgf9OCJupDWjoNbhHjnkdDgMqI3EaVf4k05hoEmWBSY_FRRCrCQIFdIQYL9anDYtQDbOLU2SGu9X1s2YhZBdfdWtvYHsFkq2jwLCPWuFHc71EqC7o-BbXEpH3CBn8xngCcEbjBf"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline z-40 flex flex-col h-full py-6">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary">hub</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary dark:text-inverse-primary leading-tight">CollabMonitor</h2>
+<p class="text-label-sm text-on-surface-variant">System Admin v2.4.0</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group cursor-pointer" onclick="window.location.href='/status'">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group cursor-pointer" onclick="showToast('System logs are secured on the admin cluster node.', 'info')">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-body-md text-body-md">Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high dark:bg-primary-container text-primary dark:text-on-primary-container border-l-[3px] border-primary active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/api-docs'">
+<span class="material-symbols-outlined">api</span>
+<span class="font-body-md text-body-md">API Reference</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group cursor-pointer" onclick="window.location.href='/settings'">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<div class="pt-6 px-6">
+<p class="text-label-sm text-outline mb-2 uppercase tracking-widest">Authentication</p>
+<div class="space-y-1 -mx-2">
+<a class="block px-3 py-2 text-body-sm text-on-surface hover:bg-surface-container rounded-lg cursor-pointer" onclick="showToast('OAuth Portal is active on secondary load balancer.', 'info')">Sign Up</a>
+<a class="block px-3 py-2 text-body-sm font-bold text-primary bg-surface-container-low rounded-lg cursor-pointer" onclick="showToast('OAuth Portal is active on secondary load balancer.', 'info')">Login</a>
+<a class="block px-3 py-2 text-body-sm text-on-surface hover:bg-surface-container rounded-lg cursor-pointer" onclick="showToast('OAuth Portal is active on secondary load balancer.', 'info')">Profile</a>
+</div>
+</div>
+</nav>
+</aside>
+<!-- Main Content Layout -->
+<main class="ml-[280px] min-h-screen grid grid-cols-1 xl:grid-cols-2">
+<!-- Documentation Content -->
+<section class="p-margin-desktop space-y-12">
+<div>
+<nav class="flex items-center gap-2 text-label-sm text-outline mb-4">
+<span>API Reference</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Authentication</span>
+</nav>
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-2">CollabHub API Documentation</h2>
+<div class="flex items-center gap-2 mb-6">
+<span class="px-2 py-0.5 bg-surface-container-highest text-on-surface-variant rounded text-label-sm">v1.0.0</span>
+<span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container rounded text-label-sm font-bold">OAS 3.0</span>
+</div>
+<p class="text-body-lg text-on-surface-variant max-w-2xl">
+                    Production-Grade API Specification for CollabHub Team Collaboration Platform. Use these endpoints to manage authentication, users, and organization data.
+                </p>
+</div>
+<div class="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-headline-sm">Servers</h3>
+<button class="flex items-center gap-2 px-4 py-2 border border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors">
+                        Authorize
+                        <span class="material-symbols-outlined text-sm">lock</span>
+</button>
+</div>
+<div class="relative max-w-lg">
+<select class="w-full appearance-none bg-surface-container border border-outline-variant rounded-lg py-2.5 px-4 pr-10 text-body-md focus:ring-2 focus:ring-primary outline-none">
+<option>http://localhost:5000 - Development Server</option>
+<option>https://api.collabhub.com - Production Server</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- API Endpoints -->
+<div class="space-y-6">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-2">Authentication</h3>
+<!-- Endpoint Card: POST Login -->
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-white">
+<div class="flex items-center justify-between p-4 bg-surface-container-low border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-[#10b981] text-white text-label-md font-bold rounded-lg uppercase">POST</span>
+<code class="text-body-md font-mono font-bold text-on-surface">/api/auth/login</code>
+<span class="text-body-sm text-outline">Log in an existing user</span>
+</div>
+<span class="material-symbols-outlined text-outline">expand_less</span>
+</div>
+<div class="p-6 space-y-8">
+<div>
+<div class="flex items-center justify-between mb-4">
+<h4 class="font-headline-sm text-headline-sm">Request Parameters</h4>
+<button class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity">Try it out</button>
+</div>
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-label-sm text-outline border-b border-outline-variant">
+<th class="py-2">Name</th>
+<th class="py-2">Type</th>
+<th class="py-2">Description</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr class="border-b border-outline-variant/30">
+<td class="py-3 font-mono text-on-surface">email <span class="text-error">*</span></td>
+<td class="py-3 text-secondary italic">string</td>
+<td class="py-3 text-on-surface-variant">User's registered email address</td>
+</tr>
+<tr class="border-b border-outline-variant/30">
+<td class="py-3 font-mono text-on-surface">password <span class="text-error">*</span></td>
+<td class="py-3 text-secondary italic">string</td>
+<td class="py-3 text-on-surface-variant">Secure user password</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm mb-4">Responses</h4>
+<div class="space-y-3">
+<div class="p-4 bg-surface-container rounded-lg flex items-start gap-4">
+<span class="px-2 py-0.5 bg-[#10b981]/20 text-[#059669] font-bold rounded text-label-sm">200</span>
+<div>
+<p class="font-bold text-body-md">Success</p>
+<p class="text-body-sm text-on-surface-variant">Authenticated successfully. Returns JWT token.</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-lg flex items-start gap-4">
+<span class="px-2 py-0.5 bg-error/10 text-error font-bold rounded text-label-sm">401</span>
+<div>
+<p class="font-bold text-body-md">Unauthorized</p>
+<p class="text-body-sm text-on-surface-variant">Invalid credentials provided.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Simple Endpoint Row: GET Me -->
+<div class="flex items-center justify-between p-4 border border-outline-variant rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-[#3b82f6] text-white text-label-md font-bold rounded-lg uppercase">GET</span>
+<code class="text-body-md font-mono text-on-surface">/api/auth/me</code>
+<span class="text-body-sm text-outline">Retrieve current authenticated user profile</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Simple Endpoint Row: POST Logout -->
+<div class="flex items-center justify-between p-4 border border-outline-variant rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="px-3 py-1 bg-[#10b981] text-white text-label-md font-bold rounded-lg uppercase">POST</span>
+<code class="text-body-md font-mono text-on-surface">/api/auth/logout</code>
+<span class="text-body-sm text-outline">Log out the active session</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Code Playground Pane -->
+<section class="code-pane hidden xl:block sticky top-16 h-[calc(100vh-64px)] overflow-y-auto border-l border-white/10 p-margin-desktop text-slate-300">
+<div class="flex items-center gap-4 border-b border-white/10 pb-4 mb-6" id="docs-tabs">
+<button class="text-white font-bold border-b-2 border-primary pb-4 tab-btn cursor-pointer" data-lang="curl">cURL</button>
+<button class="pb-4 hover:text-white transition-colors tab-btn cursor-pointer" data-lang="json">JSON</button>
+<button class="pb-4 hover:text-white transition-colors tab-btn cursor-pointer" data-lang="javascript">JavaScript</button>
+<button class="pb-4 hover:text-white transition-colors tab-btn cursor-pointer" data-lang="python">Python</button>
+<button class="pb-4 hover:text-white transition-colors tab-btn cursor-pointer" data-lang="go">Go</button>
+</div>
+<div class="space-y-8">
+<div>
+<h5 class="text-label-sm uppercase tracking-widest text-slate-500 mb-4">Request Sample</h5>
+<div class="relative bg-slate-900 rounded-xl p-6 font-mono text-sm leading-relaxed border border-white/5">
+<button class="absolute top-4 right-4 p-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer" onclick="copyActiveCode()">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+<pre class="overflow-x-auto text-emerald-400 code-snippet" id="snippet-curl">curl <span class="text-slate-400">--request</span> POST \
+  <span class="text-slate-400">--url</span> http://localhost:5000/api/auth/login \
+  <span class="text-slate-400">--header</span> <span class="text-amber-400">'Content-Type: application/json'</span> \
+  <span class="text-slate-400">--data</span> <span class="text-amber-400">'{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'</span></pre>
+<pre class="overflow-x-auto text-yellow-300 code-snippet hidden" id="snippet-json">{
+  <span class="text-slate-400">"email"</span>: <span class="text-amber-400">"user@example.com"</span>,
+  <span class="text-slate-400">"password"</span>: <span class="text-amber-400">"securepassword123"</span>
+}</pre>
+<pre class="overflow-x-auto text-sky-400 code-snippet hidden" id="snippet-javascript">fetch(<span class="text-amber-400">'http://localhost:5000/api/auth/login'</span>, {
+  method: <span class="text-amber-400">'POST'</span>,
+  headers: {
+    <span class="text-amber-400">'Content-Type'</span>: <span class="text-amber-400">'application/json'</span>
+  },
+  body: JSON.stringify({
+    email: <span class="text-amber-400">'user@example.com'</span>,
+    password: <span class="text-amber-400">'securepassword123'</span>
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data));</pre>
+<pre class="overflow-x-auto text-pink-400 code-snippet hidden" id="snippet-python">import requests
+
+url = <span class="text-amber-400">"http://localhost:5000/api/auth/login"</span>
+payload = {
+    <span class="text-amber-400">"email"</span>: <span class="text-amber-400">"user@example.com"</span>,
+    <span class="text-amber-400">"password"</span>: <span class="text-amber-400">"securepassword123"</span>
+}
+response = requests.post(url, json=payload)
+print(response.json())</pre>
+<pre class="overflow-x-auto text-teal-400 code-snippet hidden" id="snippet-go">package main
+
+import (
+    <span class="text-amber-400">"bytes"</span>
+    <span class="text-amber-400">"encoding/json"</span>
+    <span class="text-amber-400">"net/http"</span>
+)
+
+func main() {
+    url := <span class="text-amber-400">"http://localhost:5000/api/auth/login"</span>
+    payload, _ := json.Marshal(map[string]string{
+        <span class="text-amber-400">"email"</span>: <span class="text-amber-400">"user@example.com"</span>,
+        <span class="text-amber-400">"password"</span>: <span class="text-amber-400">"securepassword123"</span>,
+    })
+    http.Post(url, <span class="text-amber-400">"application/json"</span>, bytes.NewBuffer(payload))
+}</pre>
+</div>
+</div>
+<div>
+<h5 class="text-label-sm uppercase tracking-widest text-slate-500 mb-4">Response Sample (200 OK)</h5>
+<div class="bg-slate-900 rounded-xl p-6 font-mono text-sm leading-relaxed border border-white/5">
+<pre class="overflow-x-auto text-sky-400">{
+  <span class="text-slate-400">"status"</span>: <span class="text-amber-400">"success"</span>,
+  <span class="text-slate-400">"data"</span>: {
+    <span class="text-slate-400">"token"</span>: <span class="text-amber-400">"eyJhbGciOiJIUzI1NiIsInR5cCI..."</span>,
+    <span class="text-slate-400">"user"</span>: {
+      <span class="text-slate-400">"id"</span>: <span class="text-amber-400">"u_98234"</span>,
+      <span class="text-slate-400">"name"</span>: <span class="text-amber-400">"Alex Rivera"</span>,
+      <span class="text-slate-400">"email"</span>: <span class="text-amber-400">"alex@collab.com"</span>
+    }
+  }
+}</pre>
+</div>
+</div>
+<!-- Aesthetic Bento Detail Card in Code Sidebar -->
+<div class="mt-xl">
+<div class="relative group rounded-2xl overflow-hidden h-48 border border-white/10">
+<img alt="Advanced code structures" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" data-alt="A highly detailed close-up of a high-resolution monitor displaying clean, modern programming code in a dark mode IDE. The workspace is dimly lit with soft blue and purple neon highlights reflecting off the keyboard. The aesthetic is futuristic and high-tech, using a sophisticated color palette of deep charcoal, electric blue, and crisp white highlights. The mood is focused and professionally intense, perfect for a developer documentation portal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOl6XKyuraGtd1zEDXqW9y2d1x3zPc5fPGyGWJIjdXx5-b6a31twHO9LDuCW2eDwTfVzp2pxLvm756e-6udlsTd6gpv02ZuLoVgLI0OO_mjEn6dHuHvzl_nFlHq_RSHOfz8RliwYZ2sxMUMO8SHy8YDi1j1reOCPD3Bv4KrMn3ZG_1cD9U2uLRIT5p5zrc-RMuELe9qDjsfcDTH8fhf2IyqbxPBcjIR5LTd41-8li2o6ocKvo5yxeW4qqkrYeeMen3FSktpc3RmhUJ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent p-6 flex flex-col justify-end">
+<h4 class="text-white font-bold text-body-lg">Need help?</h4>
+<p class="text-slate-400 text-body-sm">Check out our advanced integration guides for enterprise scale.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+  // Toast Functionality
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById("system-toast");
+    const icon = document.getElementById("toast-icon");
+    const text = document.getElementById("toast-text");
+
+    text.innerText = message;
+    icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+    toast.className = `fixed top-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+      type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+    }`;
+
+    setTimeout(() => {
+      toast.classList.add("opacity-0", "translate-y-[-100px]");
+      toast.classList.remove("translate-y-0");
+    }, 3000);
+  }
+
+  // Tab switcher logic
+  const tabButtons = document.querySelectorAll('#docs-tabs .tab-btn');
+  const codeSnippets = document.querySelectorAll('.code-snippet');
+  
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Deactivate all buttons
+      tabButtons.forEach(b => {
+        b.classList.remove('text-white', 'font-bold', 'border-b-2', 'border-primary');
+        b.classList.add('hover:text-white', 'transition-colors');
+      });
+      // Activate clicked button
+      btn.classList.add('text-white', 'font-bold', 'border-b-2', 'border-primary');
+      btn.classList.remove('hover:text-white', 'transition-colors');
+      
+      // Hide all snippets
+      codeSnippets.forEach(s => s.classList.add('hidden'));
+      // Show clicked snippet
+      const targetLang = btn.getAttribute('data-lang');
+      document.getElementById(`snippet-${targetLang}`).classList.remove('hidden');
+    });
+  });
+
+  // Copy code utility
+  function copyActiveCode() {
+    const activeSnippet = Array.from(codeSnippets).find(s => !s.classList.contains('hidden'));
+    if (activeSnippet) {
+      navigator.clipboard.writeText(activeSnippet.innerText)
+        .then(() => showToast('Code copied to clipboard!', 'success'))
+        .catch(err => console.error('Failed to copy: ', err));
+    }
+  }
+</script>
+</body></html>

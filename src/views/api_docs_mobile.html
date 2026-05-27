@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CollabMonitor API Documentation</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Custom Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#005d86",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "outline": "#737687",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#e1e0ff",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#fffbff",
+                    "on-tertiary-fixed-variant": "#004c6e",
+                    "primary-fixed-dim": "#b5c4ff",
+                    "surface-container": "#e5eeff",
+                    "tertiary-container": "#0077aa",
+                    "secondary-container": "#6063ee",
+                    "on-tertiary-container": "#edf6ff",
+                    "on-secondary-fixed-variant": "#2f2ebe",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "secondary": "#4648d4",
+                    "on-background": "#0b1c30",
+                    "on-tertiary-fixed": "#001e2f",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#cbdbf5",
+                    "surface-variant": "#d3e4fe",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-fixed": "#07006c",
+                    "primary": "#004ad3",
+                    "background": "#f8f9ff",
+                    "inverse-primary": "#b5c4ff",
+                    "on-error": "#ffffff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#f4f3ff",
+                    "outline-variant": "#c3c5d9",
+                    "primary-fixed": "#dce1ff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#00164e",
+                    "surface": "#f8f9ff",
+                    "on-primary-fixed-variant": "#003bae",
+                    "tertiary-fixed-dim": "#89ceff",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#1d61ff",
+                    "surface-tint": "#0050e3",
+                    "tertiary-fixed": "#c9e6ff",
+                    "on-surface-variant": "#434656",
+                    "surface-bright": "#f8f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "sm": "8px",
+                    "unit": "4px",
+                    "md": "16px",
+                    "xl": "40px",
+                    "margin-desktop": "32px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "headline-sm": ["Geist"],
+                    "body-md": ["Geist"],
+                    "headline-xl": ["Geist"],
+                    "headline-lg-mobile": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Geist', sans-serif; }
+        .method-badge { min-width: 64px; text-align: center; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c3c5d9; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    @media (max-width: 767px) {
+        aside.active-mobile-sidebar {
+            display: flex !important;
+            position: fixed !important;
+            top: 64px !important;
+            left: 0 !important;
+            height: calc(100vh - 64px) !important;
+            z-index: 100 !important;
+            background-color: white !important;
+            width: 280px !important;
+            box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+    }
+  </style>
+  <script>
+      if (window.innerWidth >= 1024) {
+          window.location.replace("/api-docs?view=desktop");
+      }
+      window.addEventListener('resize', () => {
+          if (window.innerWidth >= 1024) {
+              window.location.replace("/api-docs?view=desktop");
+          }
+      });
+  </script>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- PREMIUM IN-SYSTEM FLOATING TOAST BANNER -->
+<div id="system-toast" class="fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
+  <span id="toast-icon" class="material-symbols-outlined">info</span>
+  <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
+</div>
+<!-- TopAppBar -->
+<header class="bg-surface sticky top-0 z-50 flex justify-between items-center h-16 px-4 md:px-margin-desktop border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary md:hidden cursor-pointer" id="menu-toggle">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">CollabMonitor</h1>
+</div>
+<div class="hidden md:flex flex-1 max-w-md mx-8 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="Search API endpoints..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant">health_and_safety</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-fixed ml-2 overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional close-up headshot of a developer in a modern, brightly lit office environment. The individual is wearing a dark blue tech-casual shirt, with soft natural light highlighting their features. The background is a clean, minimalist software engineering workspace with subtle hints of code on monitors, adhering to a light-mode, high-efficiency aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1EIqg0mXYzp-OvzGXbezCn71n08jRdyPBHBuoCDylnxUDwuAZVcnTs_D03xkj08kSqtdzUnt7KnSzeWEakqnCjdCdSi4EUU_ZUP8L4TwdvgGBHcsvxfDsNZV3aIxf3gzRLkEblqCNFljX_IiU_nufvMDbMZdcMjbcSpkpVGxv56qRvCoSPvy83zLMHu_Icy3SPK0oZwync-r-BtebqD2BAS5f8eyquELJtrCVlNr88Jg-fNXBgAqd3B1RJJNsB9XrNYjCDvkD__3P"/>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar (Desktop Only initially, hidden for mobile logic) -->
+<aside class="hidden md:flex flex-col w-[280px] h-[calc(100vh-64px)] fixed left-0 top-16 border-r border-outline-variant bg-surface py-6 overflow-y-auto" id="app-sidebar">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<span class="font-headline-sm text-headline-sm text-primary">API v2.4.0</span>
+</div>
+<p class="text-on-surface-variant text-label-sm">Standard Documentation</p>
+</div>
+<nav class="flex flex-col gap-1 px-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/status'">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="showToast('System logs are secured on the admin cluster node.', 'info')">
+<span class="material-symbols-outlined">terminal</span>
+<span>Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary border-l-[3px] border-primary transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/api-docs'">
+<span class="material-symbols-outlined">api</span>
+<span>API Reference</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/settings'">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-8 px-6">
+<h3 class="text-label-sm text-outline uppercase tracking-widest mb-4">Endpoints</h3>
+<div class="space-y-3">
+<div class="group cursor-pointer">
+<div class="flex items-center justify-between text-body-sm text-on-surface hover:text-primary transition-colors">
+<span>Authentication</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+<div class="group cursor-pointer pl-2">
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant hover:text-primary transition-colors">
+<span>Users</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+<div class="group cursor-pointer pl-2">
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant hover:text-primary transition-colors">
+<span>Projects</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[280px] p-4 md:p-margin-desktop bg-background min-h-screen">
+<!-- Header Section -->
+<div class="max-w-5xl mx-auto mb-10">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">CollabHub API Documentation</h2>
+<span class="px-2 py-0.5 bg-surface-container-highest rounded text-label-sm text-outline">1.0.0</span>
+<span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container rounded text-label-sm font-bold">OAS 3.0</span>
+</div>
+<p class="text-body-md text-on-surface-variant">Production-Grade API Specification for CollabHub Team Collaboration Platform</p>
+</div>
+<button class="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-secondary text-secondary font-bold rounded-lg hover:bg-secondary-container hover:text-white transition-all active:scale-[0.98]">
+<span>Authorize</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+</button>
+</div>
+<!-- Server Selector Card -->
+<div class="bg-white p-4 rounded-xl border border-outline-variant shadow-sm mb-12">
+<label class="block text-label-sm text-outline mb-2 font-bold uppercase tracking-wider">Servers</label>
+<div class="relative max-w-md">
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2.5 pl-4 pr-10 text-body-md appearance-none focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+<option>http://localhost:5000 - Development Server</option>
+<option>https://api.collabhub.com - Production Server</option>
+<option>https://staging.collabhub.com - Staging Server</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">unfold_more</span>
+</div>
+</div>
+<!-- API Section: Authentication -->
+<section class="space-y-4">
+<div class="flex items-center justify-between py-4 border-b border-outline-variant mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Authentication</h3>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+<!-- Endpoint Item: Signup -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
+<div class="flex items-center gap-4 flex-1">
+<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
+<code class="text-body-md font-bold text-on-surface">/api/auth/signup</code>
+<span class="hidden md:inline text-body-sm text-on-surface-variant">Register a new user</span>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-4">
+<span class="md:hidden text-body-sm text-on-surface-variant">Register a new user</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Endpoint Item: Login -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
+<div class="flex items-center gap-4 flex-1">
+<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
+<code class="text-body-md font-bold text-on-surface">/api/auth/login</code>
+<span class="hidden md:inline text-body-sm text-on-surface-variant">Log in an existing user</span>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-4">
+<span class="md:hidden text-body-sm text-on-surface-variant">Log in an existing user</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Endpoint Item: Logout (Active/Expanded Preview) -->
+<div class="bg-white rounded-xl border-2 border-primary overflow-hidden shadow-lg">
+<div class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-surface-container-low">
+<div class="flex items-center gap-4 flex-1">
+<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
+<code class="text-body-md font-bold text-on-surface">/api/auth/logout</code>
+<span class="hidden md:inline text-body-sm text-on-surface-variant">Log out the active session</span>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="material-symbols-outlined text-primary">expand_less</span>
+</div>
+</div>
+<!-- Detailed View Content -->
+<div class="p-6 border-t border-outline-variant">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div>
+<h4 class="font-headline-sm text-headline-sm mb-4">Parameters</h4>
+<div class="space-y-4">
+<div class="flex justify-between items-start border-b border-outline-variant pb-4">
+<div>
+<span class="font-bold text-body-md">session_id</span>
+<span class="text-error ml-2 text-label-sm font-bold">* required</span>
+<p class="text-body-sm text-on-surface-variant mt-1">The unique identifier for the user session to terminate.</p>
+</div>
+<span class="text-label-sm bg-surface-container px-2 py-1 rounded">string</span>
+</div>
+<div class="flex justify-between items-start border-b border-outline-variant pb-4">
+<div>
+<span class="font-bold text-body-md">global</span>
+<p class="text-body-sm text-on-surface-variant mt-1">If true, terminates all active sessions for this account.</p>
+</div>
+<span class="text-label-sm bg-surface-container px-2 py-1 rounded">boolean</span>
+</div>
+</div>
+<h4 class="font-headline-sm text-headline-sm mt-8 mb-4">Responses</h4>
+<div class="space-y-2">
+<div class="flex items-center gap-4 p-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
+<span class="font-bold">200</span>
+<span class="text-body-sm">Session successfully terminated</span>
+</div>
+<div class="flex items-center gap-4 p-3 bg-red-50 text-red-800 rounded-lg border border-red-200">
+<span class="font-bold">401</span>
+<span class="text-body-sm">Unauthorized access or invalid session</span>
+</div>
+</div>
+</div>
+<div class="bg-inverse-surface rounded-xl p-4 overflow-hidden">
+<div class="flex items-center justify-between mb-4">
+<span class="text-inverse-on-surface font-bold text-label-sm">Example Code</span>
+<div class="flex gap-2" id="mobile-docs-tabs">
+<button class="text-inverse-on-surface bg-white/10 px-3 py-1 rounded text-label-sm hover:bg-white/20 mobile-tab-btn cursor-pointer font-bold" data-lang="curl">CURL</button>
+<button class="text-inverse-on-surface/50 px-3 py-1 rounded text-label-sm hover:bg-white/10 transition-colors mobile-tab-btn cursor-pointer" data-lang="json">JSON</button>
+<button class="text-inverse-on-surface/50 px-3 py-1 rounded text-label-sm hover:bg-white/10 transition-colors mobile-tab-btn cursor-pointer" data-lang="js">JS</button>
+</div>
+</div>
+<pre class="text-blue-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet" id="mobile-snippet-curl">curl -X 'POST' \
+  'https://api.collabhub.com/api/auth/logout' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -d '{
+  "session_id": "sess_82jks92",
+  "global": false
+}'</pre>
+<pre class="text-yellow-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet hidden" id="mobile-snippet-json">{
+  "session_id": "sess_82jks92",
+  "global": false
+}</pre>
+<pre class="text-sky-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet hidden" id="mobile-snippet-js">fetch('https://api.collabhub.com/api/auth/logout', {
+  method: 'POST',
+  headers: {
+    'accept': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    session_id: 'sess_82jks92',
+    global: false
+  })
+});</pre>
+</div>
+</div>
+</div>
+</div>
+<!-- Endpoint Item: Profile (GET) -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
+<div class="flex items-center gap-4 flex-1">
+<span class="method-badge px-3 py-1 bg-primary text-on-primary rounded-md font-bold text-label-sm">GET</span>
+<code class="text-body-md font-bold text-on-surface">/api/auth/me</code>
+<span class="hidden md:inline text-body-sm text-on-surface-variant">Retrieve current authenticated user profile</span>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Extra Info (Modern Pattern) -->
+<section class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 p-8 bg-primary-container text-on-primary-container rounded-3xl relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md mb-2">Build faster with SDKs</h3>
+<p class="text-body-lg opacity-90 max-w-md">Download our official libraries for JavaScript, Python, and Ruby to integrate CollabMonitor in minutes.</p>
+</div>
+<div class="flex gap-4 relative z-10 mt-6">
+<button class="bg-white text-primary px-6 py-2.5 rounded-full font-bold hover:bg-surface-container transition-colors shadow-sm">View GitHub</button>
+<button class="bg-white/20 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/30 transition-colors backdrop-blur-sm">Documentation</button>
+</div>
+<div class="absolute -right-10 -bottom-10 opacity-20 transform rotate-12">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'wght' 700;">code</span>
+</div>
+</div>
+<div class="p-8 bg-white border border-outline-variant rounded-3xl flex flex-col items-center text-center justify-center">
+<div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">help</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-2">Need Help?</h4>
+<p class="text-body-sm text-on-surface-variant mb-6">Our support team is available 24/7 for technical questions and architectural advice.</p>
+<a class="text-primary font-bold hover:underline" href="#">Chat with us →</a>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (Only for relevant contexts like adding a mock server) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 md:hidden">
+<span class="material-symbols-outlined">add</span>
+</button>
+
+<script>
+    // Toast Functionality
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById("system-toast");
+      const icon = document.getElementById("toast-icon");
+      const text = document.getElementById("toast-text");
+
+      text.innerText = message;
+      icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+      toast.className = `fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+        type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+      }`;
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-[-100px]");
+        toast.classList.remove("translate-y-0");
+      }, 3000);
+    }
+
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        document.getElementById('app-sidebar').classList.toggle('active-mobile-sidebar');
+    });
+
+    // Tab switcher logic
+    const mTabButtons = document.querySelectorAll('#mobile-docs-tabs .mobile-tab-btn');
+    const mCodeSnippets = document.querySelectorAll('.mobile-code-snippet');
+    
+    mTabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Deactivate all buttons
+        mTabButtons.forEach(b => {
+          b.classList.remove('bg-white/10', 'text-inverse-on-surface', 'font-bold');
+          b.classList.add('text-inverse-on-surface/50');
+        });
+        // Activate clicked button
+        btn.classList.add('bg-white/10', 'text-inverse-on-surface', 'font-bold');
+        btn.classList.remove('text-inverse-on-surface/50');
+        
+        // Hide all snippets
+        mCodeSnippets.forEach(s => s.classList.add('hidden'));
+        // Show clicked snippet
+        const targetLang = btn.getAttribute('data-lang').toLowerCase();
+        document.getElementById(`mobile-snippet-${targetLang}`).classList.remove('hidden');
+      });
+    });
+</script>
+</body></html> 

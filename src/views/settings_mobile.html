@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface-tint": "#0050e3",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-fixed": "#c9e6ff",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-container": "#edf6ff",
+                        "on-tertiary-fixed": "#001e2f",
+                        "error": "#ba1a1a",
+                        "surface-container": "#e5eeff",
+                        "outline": "#737687",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#dce1ff",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary-container": "#6063ee",
+                        "primary": "#004ad3",
+                        "on-surface-variant": "#434656",
+                        "outline-variant": "#c3c5d9",
+                        "inverse-surface": "#213145",
+                        "surface-variant": "#d3e4fe",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "primary-fixed-dim": "#b5c4ff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#004c6e",
+                        "secondary": "#4648d4",
+                        "tertiary-fixed-dim": "#89ceff",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-container": "#f4f3ff",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#b5c4ff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed": "#07006c",
+                        "tertiary": "#005d86",
+                        "on-secondary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#003bae",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#1d61ff",
+                        "tertiary-container": "#0077aa",
+                        "on-background": "#0b1c30"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "label-md": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Geist', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+  <script>
+      // Viewport Switcher
+      if (window.innerWidth >= 1024) {
+          window.location.replace("/settings?view=desktop");
+      }
+      window.addEventListener('resize', () => {
+          if (window.innerWidth >= 1024) {
+              window.location.replace("/settings?view=desktop");
+          }
+      });
+  </script>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24 relative">
+
+<!-- PREMIUM IN-SYSTEM FLOATING TOAST BANNER -->
+<div id="system-toast" class="fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
+  <span id="toast-icon" class="material-symbols-outlined">info</span>
+  <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
+</div>
+
+<!-- TopAppBar -->
+<header class="fixed top-0 z-40 w-full h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-lg py-sm">
+  <div class="flex items-center gap-sm cursor-pointer" onclick="window.location.href='/status'">
+    <span class="font-headline-md text-headline-md font-bold text-primary">CollabHub</span>
+  </div>
+  <div class="flex items-center gap-md">
+    <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors active:scale-95" onclick="showToast('No new notifications.', 'info')">
+      <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+    </button>
+    <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors active:scale-95" onclick="showToast('Help portal is synchronized.', 'info')">
+      <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+    </button>
+    <div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+      <img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzvVbMBgxPwznX6h5fkdTliu1M8bpw4Bk8ByrFZPD7URZ11w-BQSo4-HmOxPAtCmIk07R8eRam3Ei042h4ylZbSG2h1B20hPSA3uwCDjBNe1EuEC2-vZDA_LfCv7Q9x6xYVgk-OpDSXYN4w-XPbzB_2nuJAIWifmiVsL7Ly51PoNRhbS6a085Lwbdoj4UzT-5OzJ7aF3u6f8qCGZF5bdPd-okXVBAhkvUbHXfBpKUPMngOTO8MuqwDCnAuO-18CReNKjC8TvSUkcTJ"/>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content Area -->
+<main class="pt-20 px-margin-mobile flex flex-col gap-lg pb-10">
+  
+  <!-- Page Title -->
+  <section>
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold">Settings</h1>
+    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Manage your profile and preferences.</p>
+  </section>
+
+  <!-- Profile Section -->
+  <section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex items-center gap-lg shadow-sm">
+    <div class="relative group">
+      <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-primary">
+        <img id="avatar-img-view" alt="User profile large" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-HUBVghQuY5okKXcNQYE2MqrnvkAcrZjEsFdBBwVurGe3cDRi0RIYoMaPBLQ2r32ATgEMMciCm3gLVQksV3ynHPGmCFRFmgm_LhdMfVDTve6EXNx1pJCRbiup5oLb2hF20MCn85XQzGi3nJaEpxPAWmbzAJHCEQ6k9jDnYR63oOyuWVddkmomztg_xoDJRNMlwwqNpy9Nh0xDYQOqlb938ClypGEza6qS1v4vSfprc2XzcVffs-OHRfeIv48QQ9OhSFqDW-G4V5fx"/>
+      </div>
+      <button class="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full border-2 border-white flex items-center justify-center cursor-pointer" onclick="triggerAvatarUpload()">
+        <span class="material-symbols-outlined text-[18px]">edit</span>
+      </button>
+      <input type="file" id="avatar-file-picker" accept="image/*" class="hidden" onchange="previewAvatar(event)">
+    </div>
+    <div class="flex flex-col">
+      <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Sarah Jenkins</h2>
+      <p class="font-body-sm text-body-sm text-on-surface-variant">sarah.j@collabhub.com</p>
+      <span class="font-label-sm text-label-sm text-primary mt-sm bg-primary-fixed px-2 py-0.5 rounded-full w-fit font-bold">Product Designer</span>
+    </div>
+  </section>
+
+  <!-- Appearance Section -->
+  <section class="flex flex-col gap-md">
+    <h3 class="font-label-md text-label-md text-on-surface-variant px-sm font-bold">APPEARANCE</h3>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl divide-y divide-outline-variant/50 shadow-sm">
+      <!-- Theme Toggle -->
+      <div class="p-lg flex justify-between items-center">
+        <div class="flex flex-col">
+          <span class="font-body-md text-body-md text-on-surface font-bold">Dark Mode</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">Switch between light and dark themes</span>
+        </div>
+        <button class="w-12 h-6 bg-outline-variant rounded-full p-1 flex items-center justify-start transition-all relative cursor-pointer focus:outline-none" id="theme-switch-btn" onclick="toggleMobileTheme()">
+          <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-all" id="theme-switch-thumb"></div>
+        </button>
+      </div>
+      <!-- Accent Color Grid -->
+      <div class="p-lg flex flex-col gap-md">
+        <span class="font-body-md text-body-md text-on-surface font-bold">Theme Accent Color</span>
+        <div class="flex gap-md" id="accent-container">
+          <button class="w-9 h-9 rounded-full bg-primary border-2 border-white ring-2 ring-primary cursor-pointer mobile-accent-btn" onclick="setAccentMobile('#004ad3', 'Primary Blue', this)"></button>
+          <button class="w-9 h-9 rounded-full bg-secondary border-2 border-white cursor-pointer mobile-accent-btn" onclick="setAccentMobile('#4648d4', 'Indigo', this)"></button>
+          <button class="w-9 h-9 rounded-full bg-tertiary border-2 border-white cursor-pointer mobile-accent-btn" onclick="setAccentMobile('#005d86', 'Deep Teal', this)"></button>
+          <button class="w-9 h-9 rounded-full bg-[#ba1a1a] border-2 border-white cursor-pointer mobile-accent-btn" onclick="setAccentMobile('#ba1a1a', 'Crimson Red', this)"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preferences Section (DB MAPPED fields) -->
+  <section class="flex flex-col gap-md">
+    <h3 class="font-label-md text-label-md text-on-surface-variant px-sm font-bold">PREFERENCES</h3>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl divide-y divide-outline-variant/50 shadow-sm">
+      
+      <!-- 1. New Messages Toggle -->
+      <div class="p-lg flex justify-between items-center">
+        <div class="flex flex-col">
+          <span class="font-body-md text-body-md text-on-surface font-bold">New Messages</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">Push alerts for incoming messages</span>
+        </div>
+        <button onclick="togglePrefMobile('new-messages')" id="pref-btn-new-messages" class="w-12 h-6 rounded-full p-1 flex items-center justify-end transition-all relative cursor-pointer focus:outline-none bg-primary">
+          <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
+        </button>
+      </div>
+
+      <!-- 2. Mentions Only Toggle -->
+      <div class="p-lg flex justify-between items-center">
+        <div class="flex flex-col">
+          <span class="font-body-md text-body-md text-on-surface font-bold">Mentions Only</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">Only notify when you are mentioned</span>
+        </div>
+        <button onclick="togglePrefMobile('mentions-only')" id="pref-btn-mentions-only" class="w-12 h-6 rounded-full p-1 flex items-center justify-start transition-all relative cursor-pointer focus:outline-none bg-outline-variant">
+          <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
+        </button>
+      </div>
+
+      <!-- 3. Sound Effects Toggle -->
+      <div class="p-lg flex justify-between items-center">
+        <div class="flex flex-col">
+          <span class="font-body-md text-body-md text-on-surface font-bold">Sound Effects</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">Audio cues for incoming alerts</span>
+        </div>
+        <button onclick="togglePrefMobile('sound-effects')" id="pref-btn-sound-effects" class="w-12 h-6 rounded-full p-1 flex items-center justify-end transition-all relative cursor-pointer focus:outline-none bg-primary">
+          <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-all"></div>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Account Section -->
+  <section class="flex flex-col gap-md">
+    <h3 class="font-label-md text-label-md text-on-surface-variant px-sm font-bold">ACCOUNT &amp; SECURITY</h3>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+      <button class="w-full p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors active:bg-surface-container-high text-left cursor-pointer focus:outline-none" onclick="showToast('Security preferences secured on admin server cluster.', 'success')">
+        <div class="flex items-center gap-md">
+          <span class="material-symbols-outlined text-primary">shield</span>
+          <div class="flex flex-col">
+            <span class="font-body-md text-body-md text-on-surface font-bold">Security</span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant">Password, 2FA, Devices</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <div class="mx-lg border-t border-outline-variant"></div>
+      <button class="w-full p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors active:bg-surface-container-high text-left cursor-pointer focus:outline-none" onclick="showToast('Notification triggers are updated on backend.', 'success')">
+        <div class="flex items-center gap-md">
+          <span class="material-symbols-outlined text-primary">notifications_active</span>
+          <div class="flex flex-col">
+            <span class="font-body-md text-body-md text-on-surface font-bold">Notifications</span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant">Push, Email, Slack</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <div class="mx-lg border-t border-outline-variant"></div>
+      <button class="w-full p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors active:bg-surface-container-high text-left cursor-pointer focus:outline-none" onclick="showToast('Language is locked to English (United States)', 'info')">
+        <div class="flex items-center gap-md">
+          <span class="material-symbols-outlined text-primary">language</span>
+          <div class="flex flex-col">
+            <span class="font-body-md text-body-md text-on-surface font-bold">Language</span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant">English (United States)</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Danger Zone -->
+  <section class="mb-8">
+    <button class="w-full p-lg bg-surface-container-lowest border border-error rounded-xl flex items-center gap-md text-error hover:bg-error-container transition-all active:scale-[0.98] cursor-pointer" onclick="window.location.href='/status'">
+      <span class="material-symbols-outlined">logout</span>
+      <span class="font-body-md text-body-md font-bold">Log out from all devices</span>
+    </button>
+  </section>
+</main>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full md:hidden z-50 bg-surface border-t border-outline-variant flex justify-around items-center h-16 px-margin-mobile pb-safe">
+  <button class="flex flex-col items-center justify-center text-on-surface-variant p-2 active:bg-surface-container-high transition-all cursor-pointer" onclick="window.location.href='/status'">
+    <span class="material-symbols-outlined">home</span>
+    <span class="font-label-sm text-label-sm-mobile">Home</span>
+  </button>
+  <button class="flex flex-col items-center justify-center text-on-surface-variant p-2 active:bg-surface-container-high transition-all cursor-pointer" onclick="window.location.href='/api-docs'">
+    <span class="material-symbols-outlined">chat</span>
+    <span class="font-label-sm text-label-sm-mobile">API</span>
+  </button>
+  <button class="flex flex-col items-center justify-center text-on-surface-variant p-2 active:bg-surface-container-high transition-all cursor-pointer" onclick="showToast('Files are secured on the primary storage node.', 'info')">
+    <span class="material-symbols-outlined">folder</span>
+    <span class="font-label-sm text-label-sm-mobile">Files</span>
+  </button>
+  <!-- Active Tab: Settings -->
+  <button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 transition-all cursor-pointer" onclick="window.location.href='/settings'">
+    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+    <span class="font-label-sm text-label-sm-mobile">Settings</span>
+  </button>
+</nav>
+
+<script>
+  let isDarkMode = false;
+  
+  const preferences = {
+    'new-messages': true,
+    'mentions-only': false,
+    'sound-effects': true
+  };
+
+  // Toast Functionality
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById("system-toast");
+    const icon = document.getElementById("toast-icon");
+    const text = document.getElementById("toast-text");
+
+    text.innerText = message;
+    icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+    toast.className = `fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+      type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+    }`;
+
+    setTimeout(() => {
+      toast.classList.add("opacity-0", "translate-y-[-100px]");
+      toast.classList.remove("translate-y-0");
+    }, 3000);
+  }
+
+  function toggleMobileTheme() {
+    isDarkMode = !isDarkMode;
+    const btn = document.getElementById("theme-switch-btn");
+
+    if (isDarkMode) {
+      btn.className = "w-12 h-6 bg-primary rounded-full p-1 flex items-center justify-end transition-all relative cursor-pointer focus:outline-none";
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      showToast("Dark Mode Enabled", "success");
+    } else {
+      btn.className = "w-12 h-6 bg-outline-variant rounded-full p-1 flex items-center justify-start transition-all relative cursor-pointer focus:outline-none";
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+      showToast("Light Mode Enabled", "success");
+    }
+  }
+
+  function togglePrefMobile(key) {
+    preferences[key] = !preferences[key];
+    const btn = document.getElementById(`pref-btn-${key}`);
+
+    if (preferences[key]) {
+      btn.className = "w-12 h-6 bg-primary rounded-full p-1 flex items-center justify-end transition-all relative cursor-pointer focus:outline-none";
+      showToast(`${key.replace('-', ' ')} enabled`, 'success');
+    } else {
+      btn.className = "w-12 h-6 bg-outline-variant rounded-full p-1 flex items-center justify-start transition-all relative cursor-pointer focus:outline-none";
+      showToast(`${key.replace('-', ' ')} disabled`, 'info');
+    }
+  }
+
+  function setAccentMobile(color, name, element) {
+    document.querySelectorAll('.mobile-accent-btn').forEach(btn => {
+      btn.classList.remove('ring-2', 'ring-primary');
+    });
+    element.classList.add('ring-2', 'ring-primary');
+    showToast(`Accent theme color set to ${name}`, 'success');
+  }
+
+  function triggerAvatarUpload() {
+    document.getElementById("avatar-file-picker").click();
+  }
+
+  function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast("File size exceeds 2MB limit.", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById("avatar-img-view").src = e.target.result;
+        showToast("Avatar updated successfully!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
+</body></html>
