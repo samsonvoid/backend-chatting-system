@@ -95,9 +95,9 @@ export async function initializeDatabase() {
     await pool.query("UPDATE users SET role = 'admin' WHERE email = 'samsonprogrammer@gmail.com'");
     console.log('🧹 Cleaned up user presence statuses and admin roles on server boot.');
 
-    // C. Check if users are already seeded
-    const { rows: userCount } = await pool.query('SELECT COUNT(*) FROM users');
-    if (parseInt(userCount[0].count) > 0) {
+    // C. Check if mock users are already seeded (by checking if 'u1' exists)
+    const { rows: mockCheck } = await pool.query("SELECT 1 FROM users WHERE id = 'u1'");
+    if (mockCheck.length > 0) {
       console.log('Database already has seeded data. Skipping seed.');
       return;
     }
