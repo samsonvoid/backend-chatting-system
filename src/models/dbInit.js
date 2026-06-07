@@ -16,34 +16,38 @@ export async function initializeDatabase() {
   const dbPort = parseInt(process.env.DB_PORT || '5432');
   const dbName = process.env.DB_NAME || 'svs_chat_db';
 
-  // 1. Verify/Create database by connecting to default 'postgres' database first
-  const systemPool = new Pool({
-    user: dbUser,
-    password: dbPassword,
-    host: dbHost,
-    port: dbPort,
-    database: 'postgres'
-  });
+  if (!process.env.DATABASE_URL && !process.env.POSTGRESQL_ADDON_URI) {
+    // 1. Verify/Create database by connecting to default 'postgres' database first
+    const systemPool = new Pool({
+      user: dbUser,
+      password: dbPassword,
+      host: dbHost,
+      port: dbPort,
+      database: 'postgres'
+    });
 
-  try {
-    const checkDbResult = await systemPool.query(
-      "SELECT 1 FROM pg_database WHERE datname = $1", 
-      [dbName]
-    );
+    try {
+      const checkDbResult = await systemPool.query(
+        "SELECT 1 FROM pg_database WHERE datname = $1", 
+        [dbName]
+      );
 
-    if (checkDbResult.rows.length === 0) {
-      console.log(`Database '${dbName}' does not exist on cluster. Programmatically creating database...`);
-      // PostgreSQL CREATE DATABASE cannot run inside a transaction block, so we execute it directly
-      await systemPool.query(`CREATE DATABASE "${dbName}"`);
-      console.log(`Database '${dbName}' created successfully!`);
-    } else {
-      console.log(`Database '${dbName}' verified successfully on PostgreSQL cluster.`);
+      if (checkDbResult.rows.length === 0) {
+        console.log(`Database '${dbName}' does not exist on cluster. Programmatically creating database...`);
+        // PostgreSQL CREATE DATABASE cannot run inside a transaction block, so we execute it directly
+        await systemPool.query(`CREATE DATABASE "${dbName}"`);
+        console.log(`Database '${dbName}' created successfully!`);
+      } else {
+        console.log(`Database '${dbName}' verified successfully on PostgreSQL cluster.`);
+      }
+    } catch (error) {
+      console.error('Error verifying/creating PostgreSQL database:', error);
+    } finally {
+      // Gracefully close system connection
+      await systemPool.end();
     }
-  } catch (error) {
-    console.error('Error verifying/creating PostgreSQL database:', error);
-  } finally {
-    // Gracefully close system connection
-    await systemPool.end();
+  } else {
+    console.log('Managed database connection detected (DATABASE_URL/POSTGRESQL_ADDON_URI). Skipping programmatic database verification/creation.');
   }
 
   // 2. Load and seed schema on target database

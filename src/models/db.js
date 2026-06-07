@@ -5,13 +5,24 @@ dotenv.config();
 
 const { Pool } = pg;
 
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'samson',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'svs_chat_db',
-});
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRESQL_ADDON_URI;
+
+const pool = new Pool(
+  connectionString
+    ? {
+        connectionString: connectionString,
+        ssl: {
+          rejectUnauthorized: false
+        }
+      }
+    : {
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'samson',
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        database: process.env.DB_NAME || 'svs_chat_db',
+      }
+);
 
 pool.on('connect', () => {
   console.log('PostgreSQL database connected successfully!');
