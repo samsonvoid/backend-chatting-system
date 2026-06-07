@@ -23,7 +23,7 @@ function setTokenCookie(res, userId) {
   res.cookie('token', token, {
     httpOnly: true, // Prevents XSS scripts from reading the token
     secure: process.env.NODE_ENV === 'production', // Transmits only over HTTPS in production
-    sameSite: 'lax' // Allows cookie transmission on top-level cross-port navigations
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   });
 
   return token;
@@ -207,7 +207,7 @@ export async function logoutUser(req, res) {
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
 
     // 2. Update connection status to offline in database
