@@ -6,11 +6,19 @@ import { superAdminProtect } from './middlewares/authMiddleware.js';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// 1. Configure and create static serving for the /uploads folder
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsDir));
 
 // 2. Enable Cross-Origin Resource Sharing (CORS) to connect to Vite Frontend
 app.use(cors({
@@ -72,6 +80,19 @@ app.get('/status', superAdminProtect, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'status_mobile.html'));
   } else {
     res.sendFile(path.join(__dirname, 'views', 'status_desktop.html'));
+  }
+});
+
+// Serve beautiful responsive custom admin management dashboard at /admin
+app.get('/admin', superAdminProtect, (req, res) => {
+  const viewQuery = req.query.view;
+  const userAgent = req.headers['user-agent'] || '';
+  const isMobileUA = /Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent);
+  
+  if (viewQuery === 'mobile' || (isMobileUA && viewQuery !== 'desktop')) {
+    res.sendFile(path.join(__dirname, 'views', 'admin_mobile.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'admin_desktop.html'));
   }
 });
 

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CollabHub Admin | Mobile Platform Control</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#edf6ff",
+                      "surface-container-low": "#eff4ff",
+                      "on-background": "#0b1c30",
+                      "on-surface": "#0b1c30",
+                      "primary": "#004ad3",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#89ceff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "tertiary": "#005d86",
+                      "secondary": "#4648d4",
+                      "primary-container": "#1d61ff",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface": "#f8f9ff",
+                      "on-secondary-fixed": "#07006c",
+                      "outline": "#737687",
+                      "inverse-primary": "#b5c4ff",
+                      "outline-variant": "#c3c5d9",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#004c6e",
+                      "primary-fixed": "#dce1ff",
+                      "on-primary-fixed": "#00164e",
+                      "inverse-surface": "#213145",
+                      "inverse-on-surface": "#eaf1ff",
+                      "tertiary-fixed": "#c9e6ff",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary-fixed-variant": "#003bae",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#6063ee",
+                      "on-tertiary-fixed": "#001e2f",
+                      "tertiary-container": "#0077aa",
+                      "surface-tint": "#0050e3",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container": "#e5eeff",
+                      "secondary-fixed": "#e1e0ff",
+                      "on-primary-container": "#f4f3ff",
+                      "background": "#f8f9ff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#434656",
+                      "on-secondary-container": "#fffbff"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "40px"
+              },
+              "fontFamily": {
+                      "headline-sm": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "headline-xl": ["Geist"],
+                      "body-sm": ["Geist"],
+                      "label-md": ["Geist"]
+              }
+            },
+          },
+        }
+    </script>
+    <script>
+        if (window.innerWidth >= 1024) {
+            window.location.replace("/admin?view=desktop");
+        }
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                window.location.replace("/admin?view=desktop");
+            }
+        });
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col pb-24">
+
+<!-- FLOATING TOAST BANNER -->
+<div id="system-toast" class="fixed top-4 right-4 left-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
+  <span id="toast-icon" class="material-symbols-outlined">info</span>
+  <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="delete-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant w-full rounded-2xl shadow-2xl p-lg space-y-lg">
+    <div class="flex items-center gap-md text-error">
+      <span class="material-symbols-outlined text-[32px]">warning</span>
+      <h3 class="font-headline-sm text-headline-sm font-bold">Delete User?</h3>
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant">Are you sure? This action will permanently purge this account and all active chat history.</p>
+    <div class="flex justify-end gap-md pt-sm">
+      <button onclick="closeDeleteModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg cursor-pointer">Cancel</button>
+      <button id="confirm-delete-btn" class="px-xl py-sm font-label-md text-label-md bg-error text-white rounded-lg hover:bg-error/95 cursor-pointer font-bold">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="bg-surface border-b border-outline-variant sticky top-0 z-10 px-margin-mobile py-sm flex flex-col gap-sm">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-sm text-headline-sm text-primary font-black">CollabMonitor</h1>
+            <p class="text-[10px] text-outline">System Admin v2.4.0 • Mobile Control</p>
+        </div>
+        <div class="flex items-center gap-1 bg-primary/15 text-primary px-3 py-1 rounded-full border border-primary/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            <span id="active-sockets-badge" class="text-[9px] font-bold uppercase tracking-wider">1 Online</span>
+        </div>
+    </div>
+    <!-- Search Bar -->
+    <div class="relative w-full">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
+        <input id="user-search-input" onkeyup="filterUsers()" class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Search directory..." type="text"/>
+    </div>
+</header>
+
+<!-- Main Scroll Container -->
+<main class="flex-1 p-margin-mobile space-y-lg overflow-y-auto">
+
+    <!-- PLATFORM METRICS -->
+    <section class="grid grid-cols-2 gap-sm">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-sm flex items-center justify-between shadow-sm">
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold tracking-wider">Total Users</span>
+                <p id="stat-total-users" class="text-xl font-black text-on-surface">7</p>
+            </div>
+            <span class="material-symbols-outlined text-primary bg-primary/10 p-sm rounded-lg text-[20px]">groups</span>
+        </div>
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-sm flex items-center justify-between shadow-sm">
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold tracking-wider">Online Users</span>
+                <p id="stat-online-users" class="text-xl font-black text-emerald-600">1</p>
+            </div>
+            <span class="material-symbols-outlined text-emerald-600 bg-emerald-50 p-sm rounded-lg text-[20px]">wifi</span>
+        </div>
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-sm flex items-center justify-between shadow-sm">
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold tracking-wider">Chats</span>
+                <p id="stat-total-rooms" class="text-xl font-black text-secondary">7</p>
+            </div>
+            <span class="material-symbols-outlined text-secondary bg-secondary/10 p-sm rounded-lg text-[20px]">chat</span>
+        </div>
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-sm flex items-center justify-between shadow-sm">
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold tracking-wider">Messages</span>
+                <p id="stat-total-messages" class="text-xl font-black text-tertiary">20</p>
+            </div>
+            <span class="material-symbols-outlined text-tertiary bg-tertiary/10 p-sm rounded-lg text-[20px]">chat_bubble</span>
+        </div>
+    </section>
+
+    <!-- MEMBER DIRECTORY CARDS (STACKED LIST FOR MOBILE) -->
+    <section class="space-y-sm">
+        <div class="flex justify-between items-center">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Workspace Members</h3>
+            <button onclick="loadData()" class="text-primary font-label-md text-label-md flex items-center gap-xs cursor-pointer">
+                <span class="material-symbols-outlined text-[14px]">refresh</span> Reload
+            </button>
+        </div>
+        
+        <div id="users-cards-container" class="space-y-sm">
+            <!-- Dynamic cards inject here -->
+            <p class="text-center text-sm text-on-surface-variant py-md">Loading member directory...</p>
+        </div>
+    </section>
+
+</main>
+
+<!-- Bottom Nav Bar Mobile -->
+<nav class="fixed bottom-0 w-full bg-surface border-t border-outline-variant flex justify-around items-center h-16 shadow-lg z-10 px-sm">
+    <button onclick="window.location.href='/status'" class="flex flex-col items-center justify-center text-on-surface-variant cursor-pointer p-xs rounded-lg">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="text-[10px] font-bold">Health</span>
+    </button>
+    <button onclick="window.location.href='/admin'" class="flex flex-col items-center justify-center text-primary cursor-pointer p-xs rounded-lg font-bold">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span class="text-[10px]">Manage</span>
+    </button>
+    <button onclick="window.location.href='/api-docs'" class="flex flex-col items-center justify-center text-on-surface-variant cursor-pointer p-xs rounded-lg">
+        <span class="material-symbols-outlined">api</span>
+        <span class="text-[10px] font-bold">API</span>
+    </button>
+    <button onclick="window.location.href='/settings'" class="flex flex-col items-center justify-center text-on-surface-variant cursor-pointer p-xs rounded-lg">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="text-[10px] font-bold">Settings</span>
+    </button>
+</nav>
+
+<script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById("system-toast");
+      const icon = document.getElementById("toast-icon");
+      const text = document.getElementById("toast-text");
+
+      text.innerText = message;
+      icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+      toast.className = `fixed top-4 right-4 left-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+        type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+      }`;
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-[-100px]");
+        toast.classList.remove("translate-y-0");
+      }, 3000);
+    }
+
+    let userToDeleteId = null;
+    function openDeleteModal(userId) {
+      userToDeleteId = userId;
+      const modal = document.getElementById("delete-modal");
+      modal.classList.remove("hidden");
+      
+      document.getElementById("confirm-delete-btn").onclick = () => {
+        deleteUser(userId);
+      };
+    }
+    function closeDeleteModal() {
+      userToDeleteId = null;
+      document.getElementById("delete-modal").classList.add("hidden");
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('stat-total-users').innerText = data.stats.totalUsers;
+          document.getElementById('stat-online-users').innerText = data.stats.onlineUsers;
+          document.getElementById('stat-total-rooms').innerText = data.stats.totalRooms;
+          document.getElementById('stat-total-messages').innerText = data.stats.totalMessages;
+          document.getElementById('active-sockets-badge').innerText = `${data.stats.onlineUsers} Online`;
+        }
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (data.success) {
+          const cardsContainer = document.getElementById('users-cards-container');
+          cardsContainer.innerHTML = '';
+
+          data.users.forEach(u => {
+            const isOnline = u.status === 'online';
+            const isAway = u.status === 'away';
+            const statusColor = isOnline ? 'bg-emerald-100 text-emerald-800' : isAway ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
+            const statusDot = isOnline ? 'bg-emerald-500' : isAway ? 'bg-amber-500' : 'bg-slate-400';
+            
+            const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
+            const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
+
+            const card = document.createElement('div');
+            card.className = 'bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md user-card';
+            card.setAttribute('data-search', `${u.name} ${u.email} ${u.id}`.toLowerCase());
+
+            card.innerHTML = `
+              <div class="flex items-center gap-md">
+                <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container font-bold flex items-center justify-center relative border border-outline-variant/30 select-none">
+                  ${u.avatar || 'CH'}
+                  <span class="absolute bottom-0 right-0 w-3 h-3 ${statusDot} border-2 border-white rounded-full"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-label-lg text-label-lg font-bold text-on-surface truncate">${u.name}</h4>
+                  <p class="font-label-sm text-label-sm text-outline font-mono truncate">${u.id}</p>
+                </div>
+              </div>
+              <div class="space-y-1 font-body-sm text-body-sm border-t border-slate-100 pt-md text-on-surface-variant">
+                <p class="flex justify-between"><span>Email:</span> <span class="font-mono text-xs font-semibold">${u.email}</span></p>
+                <p class="flex justify-between"><span>Status:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span></p>
+                <p class="flex justify-between"><span>Role:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span></p>
+                <p class="flex justify-between"><span>Status:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${blockColor}">${u.isBlocked ? 'Suspended' : 'Active'}</span></p>
+              </div>
+              <div class="flex justify-end gap-sm border-t border-slate-100 pt-sm">
+                <!-- Toggle Role -->
+                <button onclick="toggleRole('${u.id}')" class="flex-1 py-2 bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg flex items-center justify-center gap-xs font-bold text-xs" title="Toggle Admin Role">
+                  <span class="material-symbols-outlined text-[16px]">shield</span> Role
+                </button>
+                <!-- Toggle Block -->
+                <button onclick="toggleBlock('${u.id}')" class="flex-1 py-2 ${u.isBlocked ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} rounded-lg flex items-center justify-center gap-xs font-bold text-xs" title="${u.isBlocked ? 'Unblock' : 'Suspend'}">
+                  <span class="material-symbols-outlined text-[16px]">${u.isBlocked ? 'check_circle' : 'block'}</span> ${u.isBlocked ? 'Active' : 'Block'}
+                </button>
+                <!-- Delete -->
+                <button onclick="openDeleteModal('${u.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center" title="Delete Account">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              </div>
+            `;
+
+            cardsContainer.appendChild(card);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load users cards:', err);
+      }
+    }
+
+    async function toggleRole(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    async function toggleBlock(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/block`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    async function deleteUser(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeDeleteModal();
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+          closeDeleteModal();
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+        closeDeleteModal();
+      }
+    }
+
+    function filterUsers() {
+      const query = document.getElementById('user-search-input').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.user-card');
+      
+      cards.forEach(card => {
+        const searchText = card.getAttribute('data-search') || '';
+        if (searchText.includes(query)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    function loadData() {
+      loadStats();
+      loadUsers();
+    }
+
+    loadData();
+    setInterval(loadStats, 5000);
+</script>
+</body>
+</html>

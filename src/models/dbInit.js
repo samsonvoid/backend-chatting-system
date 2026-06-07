@@ -58,10 +58,12 @@ export async function initializeDatabase() {
     await pool.query(schemaSql);
     console.log('Database tables verified/created successfully.');
 
-    // C-MIGRATION. Safely add any new columns to the existing users table without wiping data
+    // C-MIGRATION. Safely add any new columns to the existing tables without wiping data
     // Uses ADD COLUMN IF NOT EXISTS — completely safe for existing rows
     try {
       const migrations = [
+        "CREATE EXTENSION IF NOT EXISTS pg_trgm",
+        "CREATE INDEX IF NOT EXISTS idx_messages_content_trgm ON messages USING gin (content gin_trgm_ops)",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(100)",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS theme VARCHAR(20) DEFAULT 'light'",
@@ -70,14 +72,23 @@ export async function initializeDatabase() {
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS new_messages_alert BOOLEAN DEFAULT true",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS mentions_only_alert BOOLEAN DEFAULT false",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS sound_effects_alert BOOLEAN DEFAULT true",
+        "ALTER TABLE conversation_users ADD COLUMN IF NOT EXISTS last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN DEFAULT false",
       ];
       for (const sql of migrations) {
         await pool.query(sql);
       }
-      console.log('✅ Column migrations applied successfully (new profile columns ensured).');
+      console.log('✅ Column migrations applied successfully (new columns ensured).');
     } catch (migErr) {
       console.warn('⚠️ Column migration warning (non-fatal):', migErr.message);
     }
+
+    // Reset user statuses on startup to offline (except keeping u3/Baraka as 'away' for variety)
+    await pool.query("UPDATE users SET status = 'offline' WHERE id != 'u3'");
+    await pool.query("UPDATE users SET status = 'away' WHERE id = 'u3'");
+    await pool.query("UPDATE users SET role = 'admin' WHERE email = 'samsonprogrammer@gmail.com'");
+    console.log('🧹 Cleaned up user presence statuses and admin roles on server boot.');
 
     // C. Check if users are already seeded
     const { rows: userCount } = await pool.query('SELECT COUNT(*) FROM users');
@@ -92,12 +103,12 @@ export async function initializeDatabase() {
     const defaultPasswordHash = await bcrypt.hash('password123', 10);
     const users = [
       { id: 'current', name: 'Samson Admin', email: 'samsonprogrammer@gmail.com', passwordHash: defaultPasswordHash, avatar: 'SA', status: 'online' },
-      { id: 'u1', name: 'Jamali', email: 'jamali@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'JM', status: 'online' },
-      { id: 'u2', name: 'Neema', email: 'neema@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'NM', status: 'online' },
+      { id: 'u1', name: 'Jamali', email: 'jamali@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'JM', status: 'offline' },
+      { id: 'u2', name: 'Neema', email: 'neema@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'NM', status: 'offline' },
       { id: 'u3', name: 'Baraka', email: 'baraka@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'BK', status: 'away' },
       { id: 'u4', name: 'Amina', email: 'amina@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'AM', status: 'offline' },
-      { id: 'u5', name: 'Hassan', email: 'hassan@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'HS', status: 'online' },
-      { id: 'u6', name: 'Fatuma', email: 'fatuma@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'FT', status: 'online' }
+      { id: 'u5', name: 'Hassan', email: 'hassan@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'HS', status: 'offline' },
+      { id: 'u6', name: 'Fatuma', email: 'fatuma@collabhub.com', passwordHash: defaultPasswordHash, avatar: 'FT', status: 'offline' }
     ];
 
     for (const u of users) {

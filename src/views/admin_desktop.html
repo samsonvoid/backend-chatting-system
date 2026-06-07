@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CollabHub Admin | Platform Control Center</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#edf6ff",
+                      "surface-container-low": "#eff4ff",
+                      "on-background": "#0b1c30",
+                      "on-surface": "#0b1c30",
+                      "primary": "#004ad3",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#89ceff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "tertiary": "#005d86",
+                      "secondary": "#4648d4",
+                      "primary-container": "#1d61ff",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface": "#f8f9ff",
+                      "on-secondary-fixed": "#07006c",
+                      "outline": "#737687",
+                      "inverse-primary": "#b5c4ff",
+                      "outline-variant": "#c3c5d9",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#004c6e",
+                      "primary-fixed": "#dce1ff",
+                      "on-primary-fixed": "#00164e",
+                      "inverse-surface": "#213145",
+                      "inverse-on-surface": "#eaf1ff",
+                      "tertiary-fixed": "#c9e6ff",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary-fixed-variant": "#003bae",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#6063ee",
+                      "on-tertiary-fixed": "#001e2f",
+                      "tertiary-container": "#0077aa",
+                      "surface-tint": "#0050e3",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container": "#e5eeff",
+                      "secondary-fixed": "#e1e0ff",
+                      "on-primary-container": "#f4f3ff",
+                      "background": "#f8f9ff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#434656",
+                      "on-secondary-container": "#fffbff"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "40px"
+              },
+              "fontFamily": {
+                      "headline-sm": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "headline-xl": ["Geist"],
+                      "body-sm": ["Geist"],
+                      "label-md": ["Geist"]
+              }
+            },
+          },
+        }
+    </script>
+    <script>
+        if (window.innerWidth < 1024) {
+            window.location.replace("/admin?view=mobile");
+        }
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 1024) {
+                window.location.replace("/admin?view=mobile");
+            }
+        });
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen">
+
+<!-- FLOATING TOAST BANNER -->
+<div id="system-toast" class="fixed top-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
+  <span id="toast-icon" class="material-symbols-outlined">info</span>
+  <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="delete-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant max-w-md w-full rounded-2xl shadow-2xl p-lg space-y-lg animate-fade-in">
+    <div class="flex items-center gap-md text-error">
+      <span class="material-symbols-outlined text-[32px]">warning</span>
+      <h3 class="font-headline-sm text-headline-sm font-bold">Delete User Account?</h3>
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant">This action is irreversible. It will permanently delete this account, all associated message logs, and conversation attachments.</p>
+    <div class="flex justify-end gap-md pt-sm">
+      <button onclick="closeDeleteModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors cursor-pointer">Cancel</button>
+      <button id="confirm-delete-btn" class="px-xl py-sm font-label-md text-label-md bg-error text-white rounded-lg hover:bg-error/95 transition-all cursor-pointer font-bold">Delete User</button>
+    </div>
+  </div>
+</div>
+
+<!-- SideNavBar -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 border-r border-outline-variant bg-surface flex flex-col py-6">
+    <div class="px-6 mb-8">
+        <h1 class="font-headline-sm text-headline-sm text-primary font-black">CollabMonitor</h1>
+        <p class="font-label-sm text-label-sm text-outline">System Admin v2.4.0</p>
+    </div>
+    <nav class="flex-1 space-y-1">
+        <div onclick="window.location.href='/status'" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-body-md text-body-md">Overview</span>
+        </div>
+        <div onclick="window.location.href='/admin'" class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary border-l-[3px] border-primary cursor-pointer">
+            <span class="material-symbols-outlined">manage_accounts</span>
+            <span class="font-body-md text-body-md font-bold">Management</span>
+        </div>
+        <div onclick="window.location.href='/api-docs'" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
+            <span class="material-symbols-outlined">api</span>
+            <span class="font-body-md text-body-md">API</span>
+        </div>
+        <div onclick="window.location.href='/settings'" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-body-md text-body-md">Settings</span>
+        </div>
+    </nav>
+    <div class="px-6 mt-auto flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary text-white font-bold flex items-center justify-center border border-outline-variant select-none uppercase">SA</div>
+        <div>
+            <p class="font-label-md text-label-md">Samson Admin</p>
+            <p class="font-label-sm text-label-sm text-outline">Superuser</p>
+        </div>
+    </div>
+</aside>
+
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-margin-desktop ml-[280px] top-0 sticky border-b border-outline-variant bg-surface z-10">
+    <div class="flex items-center gap-4">
+        <h2 class="font-headline-md text-headline-md font-bold text-primary">Platform Management</h2>
+        <div class="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            <span id="active-sockets-badge" class="font-label-sm text-label-sm uppercase tracking-wider font-bold">1 Client Connected</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
+            <input id="user-search-input" onkeyup="filterUsers()" class="pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-64" placeholder="Search directory..." type="text"/>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Canvas -->
+<main class="ml-[280px] p-lg flex flex-col gap-lg hide-scrollbar pb-24">
+    
+    <!-- STATS OVERVIEW CARDS -->
+    <section class="grid grid-cols-4 gap-lg">
+        <!-- Card 1: Total Users -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div class="space-y-1">
+                <span class="font-label-md text-label-md text-outline">Total Users</span>
+                <p id="stat-total-users" class="font-headline-lg text-headline-lg text-on-surface font-black">7</p>
+            </div>
+            <span class="material-symbols-outlined text-[32px] text-primary bg-primary/10 p-sm rounded-xl">groups</span>
+        </div>
+        <!-- Card 2: Online Users -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div class="space-y-1">
+                <span class="font-label-md text-label-md text-outline">Online Users</span>
+                <p id="stat-online-users" class="font-headline-lg text-headline-lg text-emerald-600 font-black">1</p>
+            </div>
+            <span class="material-symbols-outlined text-[32px] text-emerald-600 bg-emerald-50 p-sm rounded-xl">wifi</span>
+        </div>
+        <!-- Card 3: Active Chats -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div class="space-y-1">
+                <span class="font-label-md text-label-md text-outline">Conversations</span>
+                <p id="stat-total-rooms" class="font-headline-lg text-headline-lg text-secondary font-black">7</p>
+            </div>
+            <span class="material-symbols-outlined text-[32px] text-secondary bg-secondary/10 p-sm rounded-xl">chat</span>
+        </div>
+        <!-- Card 4: Total Messages -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div class="space-y-1">
+                <span class="font-label-md text-label-md text-outline">Messages Sent</span>
+                <p id="stat-total-messages" class="font-headline-lg text-headline-lg text-tertiary font-black">20</p>
+            </div>
+            <span class="material-symbols-outlined text-[32px] text-tertiary bg-tertiary/10 p-sm rounded-xl">chat_bubble</span>
+        </div>
+    </section>
+
+    <!-- USERS DIRECTORY TABLE -->
+    <section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+        <div class="px-md py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+            <h3 class="font-headline-sm text-headline-sm font-bold">Workspace Member Directory</h3>
+            <button onclick="loadData()" class="text-primary font-label-md text-label-md hover:underline flex items-center gap-xs cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">refresh</span> Reload
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="font-label-sm text-label-sm text-outline border-b border-outline-variant bg-slate-50/50">
+                        <th class="px-lg py-4">User Details</th>
+                        <th class="px-lg py-4">Email</th>
+                        <th class="px-lg py-4">Session Status</th>
+                        <th class="px-lg py-4">Security Role</th>
+                        <th class="px-lg py-4">Access Status</th>
+                        <th class="px-lg py-4 text-right">Management Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body" class="font-body-sm text-body-sm">
+                    <!-- Dynamic Rows Insertion -->
+                    <tr>
+                      <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">Loading workspace members list...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script>
+    // System-wide Custom Toast Alert
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById("system-toast");
+      const icon = document.getElementById("toast-icon");
+      const text = document.getElementById("toast-text");
+
+      text.innerText = message;
+      icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+      toast.className = `fixed top-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+        type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+      }`;
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-[-100px]");
+        toast.classList.remove("translate-y-0");
+      }, 3000);
+    }
+
+    // Modal state controllers
+    let userToDeleteId = null;
+    function openDeleteModal(userId) {
+      userToDeleteId = userId;
+      const modal = document.getElementById("delete-modal");
+      modal.classList.remove("hidden");
+      
+      document.getElementById("confirm-delete-btn").onclick = () => {
+        deleteUser(userId);
+      };
+    }
+    function closeDeleteModal() {
+      userToDeleteId = null;
+      document.getElementById("delete-modal").classList.add("hidden");
+    }
+
+    // Fetch dashboard statistics
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('stat-total-users').innerText = data.stats.totalUsers;
+          document.getElementById('stat-online-users').innerText = data.stats.onlineUsers;
+          document.getElementById('stat-total-rooms').innerText = data.stats.totalRooms;
+          document.getElementById('stat-total-messages').innerText = data.stats.totalMessages;
+          document.getElementById('active-sockets-badge').innerText = `${data.stats.onlineUsers} Active Client${data.stats.onlineUsers !== 1 ? 's' : ''}`;
+        }
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+
+    // Load registered users directory
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (data.success) {
+          const tableBody = document.getElementById('users-table-body');
+          tableBody.innerHTML = '';
+
+          data.users.forEach(u => {
+            const isOnline = u.status === 'online';
+            const isAway = u.status === 'away';
+            const statusColor = isOnline ? 'bg-emerald-100 text-emerald-800' : isAway ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
+            const statusDot = isOnline ? 'bg-emerald-500' : isAway ? 'bg-amber-500' : 'bg-slate-400';
+            
+            const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
+            const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
+
+            const initials = u.avatar || 'CH';
+
+            const row = document.createElement('tr');
+            row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors user-row';
+            row.setAttribute('data-search', `${u.name} ${u.email} ${u.id}`.toLowerCase());
+
+            row.innerHTML = `
+              <td class="px-lg py-3 flex items-center gap-md">
+                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container font-bold text-sm flex items-center justify-center relative border border-outline-variant/30 select-none">
+                  ${initials}
+                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusDot} border-2 border-white rounded-full"></span>
+                </div>
+                <div>
+                  <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[180px]">${u.name}</p>
+                  <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[120px]">${u.id}</p>
+                </div>
+              </td>
+              <td class="px-lg py-3 font-mono text-xs text-on-surface-variant truncate max-w-[200px]">${u.email}</td>
+              <td class="px-lg py-3">
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span>
+              </td>
+              <td class="px-lg py-3">
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span>
+              </td>
+              <td class="px-lg py-3">
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${blockColor}">
+                  ${u.isBlocked ? 'Suspended' : 'Active'}
+                </span>
+              </td>
+              <td class="px-lg py-3 text-right">
+                <div class="flex justify-end gap-sm">
+                  <!-- Toggle Role -->
+                  <button onclick="toggleRole('${u.id}')" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Toggle Admin Role">
+                    <span class="material-symbols-outlined text-[20px]">shield</span>
+                  </button>
+                  <!-- Toggle Block -->
+                  <button onclick="toggleBlock('${u.id}')" class="p-2 hover:bg-slate-100 ${u.isBlocked ? 'text-emerald-600 hover:bg-emerald-50' : 'text-rose-600 hover:bg-rose-50'} rounded-lg transition-colors cursor-pointer" title="${u.isBlocked ? 'Unblock User' : 'Suspend User'}">
+                    <span class="material-symbols-outlined text-[20px]">${u.isBlocked ? 'check_circle' : 'block'}</span>
+                  </button>
+                  <!-- Delete Account -->
+                  <button onclick="openDeleteModal('${u.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Permanently Delete Account">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            `;
+
+            tableBody.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load users directory:', err);
+      }
+    }
+
+    // Toggle Role Action
+    async function toggleRole(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Toggle Block Action
+    async function toggleBlock(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/block`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Delete User Action
+    async function deleteUser(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeDeleteModal();
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+          closeDeleteModal();
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+        closeDeleteModal();
+      }
+    }
+
+    // Search Filtering
+    function filterUsers() {
+      const query = document.getElementById('user-search-input').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.user-row');
+      
+      rows.forEach(row => {
+        const searchText = row.getAttribute('data-search') || '';
+        if (searchText.includes(query)) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+    }
+
+    // Load data sequence
+    function loadData() {
+      loadStats();
+      loadUsers();
+    }
+
+    // Initialize Page
+    loadData();
+    // Auto-poll stats every 5 seconds
+    setInterval(loadStats, 5000);
+</script>
+</body>
+</html>

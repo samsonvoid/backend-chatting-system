@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, loginUser, logoutUser, getCurrentUser, updateUserProfile } from '../controllers/authController.js';
+import { registerUser, loginUser, logoutUser, getCurrentUser, updateUserProfile, getAllUsers } from '../controllers/authController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = Router();
@@ -117,5 +117,6 @@ router.post('/logout', protect, logoutUser);
  */
 router.get('/me', protect, getCurrentUser);
 router.put('/profile', protect, updateUserProfile);
+router.get('/users', protect, getAllUsers);
 
 export default router;

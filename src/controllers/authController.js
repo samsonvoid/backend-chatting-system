@@ -23,8 +23,7 @@ function setTokenCookie(res, userId) {
   res.cookie('token', token, {
     httpOnly: true, // Prevents XSS scripts from reading the token
     secure: process.env.NODE_ENV === 'production', // Transmits only over HTTPS in production
-    sameSite: 'lax', // Allows cookie transmission on top-level cross-port navigations (e.g. to status page)
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours expiration budget
+    sameSite: 'lax' // Allows cookie transmission on top-level cross-port navigations
   });
 
   return token;
@@ -84,6 +83,14 @@ export async function registerUser(req, res) {
     await pool.query(
       'INSERT INTO users (id, name, email, password_hash, avatar, status) VALUES ($1, $2, $3, $4, $5, $6)',
       [userId, name, lowercaseEmail, passwordHash, avatar, 'online']
+    );
+
+    // 5.5. Auto-join all existing company group chats
+    await pool.query(
+      `INSERT INTO conversation_users (conversation_id, user_id) 
+       SELECT id, $1 FROM conversations WHERE type = 'group'
+       ON CONFLICT DO NOTHING`,
+      [userId]
     );
 
     // 6. Generate signed JWT token and set in HttpOnly cookie
@@ -296,5 +303,27 @@ export async function updateUserProfile(req, res) {
       success: false,
       message: 'Failed to update profile. Internal database error.'
     });
+  }
+}
+
+/**
+ * @desc    Get all users for the company directory
+ * @route   GET /api/auth/users
+ * @access  Private
+ */
+export async function getAllUsers(req, res) {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, email, avatar, status, bio, username 
+       FROM users 
+       WHERE id != $1
+       ORDER BY name ASC`,
+      [req.user.id]
+    );
+    
+    return res.status(200).json({ success: true, users: rows });
+  } catch (error) {
+    console.error('[Auth Controller] getAllUsers error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to fetch users directory' });
   }
 }
