@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { registerUser, loginUser, logoutUser, getCurrentUser, updateUserProfile, getAllUsers } from '../controllers/authController.js';
 import { protect } from '../middlewares/authMiddleware.js';
+import { rateLimiter } from '../middlewares/rateLimitMiddleware.js';
 
 const router = Router();
 
@@ -40,7 +41,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/signup', registerUser);
+router.post('/signup', rateLimiter(15 * 60 * 1000, 15, 'Too many registration attempts from this IP. Please try again after 15 minutes.'), registerUser);
 
 /**
  * @openapi
@@ -72,7 +73,7 @@ router.post('/signup', registerUser);
  *       401:
  *         description: Authentication failed (incorrect password or user does not exist)
  */
-router.post('/login', loginUser);
+router.post('/login', rateLimiter(15 * 60 * 1000, 30, 'Too many login attempts from this IP. Please try again after 15 minutes.'), loginUser);
 
 /**
  * @openapi

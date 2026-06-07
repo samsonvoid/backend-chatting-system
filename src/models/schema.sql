@@ -54,3 +54,7 @@ CREATE INDEX IF NOT EXISTS idx_messages_metadata ON messages USING gin (metadata
 -- 6. Create GIN index on message content for trigram search optimization
 CREATE INDEX IF NOT EXISTS idx_messages_content_trgm ON messages USING gin (content gin_trgm_ops);
 
+-- 7. Create composite index on conversation_id and created_at for fast history loads
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_created ON messages (conversation_id, created_at DESC);
+
+
