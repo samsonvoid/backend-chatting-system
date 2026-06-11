@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../models/db.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'collabhubsecret';
 
@@ -247,7 +250,7 @@ export async function getCurrentUser(req, res) {
  * @access  Private (JWT protected)
  */
 export async function updateUserProfile(req, res) {
-  const { name, username, bio, theme, accentColor, fontSize, newMessagesAlert, mentionsOnlyAlert, soundEffectsAlert } = req.body;
+  const { name, username, bio, theme, accentColor, fontSize, newMessagesAlert, mentionsOnlyAlert, soundEffectsAlert, avatar } = req.body;
 
   if (!name || !name.trim()) {
     return res.status(400).json({
@@ -258,7 +261,37 @@ export async function updateUserProfile(req, res) {
 
   try {
     const updatedName = name.trim();
-    const avatar = getInitials(updatedName);
+    let finalAvatar = avatar;
+
+    // Save custom base64 avatar images to uploads directory
+    if (avatar && avatar.startsWith('data:image/')) {
+      try {
+        const match = avatar.match(/^data:(.+);base64,(.+)$/);
+        if (match) {
+          const fileType = match[1];
+          const base64Data = match[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          
+          const __filename = fileURLToPath(import.meta.url);
+          const __dirname = path.dirname(__filename);
+          const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+          }
+          
+          const extension = fileType.split('/')[1] || 'png';
+          const filename = `avatar-${req.user.id}-${Date.now()}.${extension}`;
+          const filePath = path.join(uploadsDir, filename);
+          fs.writeFileSync(filePath, buffer);
+          
+          finalAvatar = `/uploads/${filename}`;
+        }
+      } catch (err) {
+        console.error('[Auth Controller] Error saving avatar image upload:', err);
+      }
+    } else if (!finalAvatar) {
+      finalAvatar = getInitials(updatedName);
+    }
 
     // Update in PostgreSQL
     const { rows } = await pool.query(
@@ -267,7 +300,7 @@ export async function updateUserProfile(req, res) {
         font_size = $7, new_messages_alert = $8, mentions_only_alert = $9, sound_effects_alert = $10 
        WHERE id = $11 
        RETURNING id, name, username, email, avatar, status, bio, theme, accent_color, font_size, new_messages_alert, mentions_only_alert, sound_effects_alert`,
-      [updatedName, avatar, username, bio, theme, accentColor, fontSize, newMessagesAlert, mentionsOnlyAlert, soundEffectsAlert, req.user.id]
+      [updatedName, finalAvatar, username, bio, theme, accentColor, fontSize, newMessagesAlert, mentionsOnlyAlert, soundEffectsAlert, req.user.id]
     );
 
     if (rows.length === 0) {
