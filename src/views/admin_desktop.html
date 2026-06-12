@@ -296,7 +296,6 @@
                             <th class="px-lg py-4">Email</th>
                             <th class="px-lg py-4">Session Status</th>
                             <th class="px-lg py-4">Security Role</th>
-                            <th class="px-lg py-4">Group Allowed</th>
                             <th class="px-lg py-4">Access Status</th>
                             <th class="px-lg py-4 text-right">Management Actions</th>
                         </tr>
@@ -304,7 +303,7 @@
                     <tbody id="users-table-body" class="font-body-sm text-body-sm">
                         <!-- Dynamic Rows Insertion -->
                         <tr>
-                          <td colspan="7" class="px-lg py-6 text-center text-on-surface-variant">Loading workspace members list...</td>
+                           <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">Loading workspace members list...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -494,7 +493,7 @@
       if (filtered.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="7" class="px-lg py-6 text-center text-on-surface-variant">No workspace members match the filters.</td>
+             <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">No workspace members match the filters.</td>
           </tr>
         `;
         return;
@@ -508,7 +507,6 @@
         
         const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
         const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
-        const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/25' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200';
 
         const initials = u.avatar || 'CH';
 
@@ -533,11 +531,6 @@
           </td>
           <td class="px-lg py-3">
             <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span>
-          </td>
-          <td class="px-lg py-3">
-            <span onclick="toggleGroupCreation('${u.id}')" class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border cursor-pointer transition-all ${allowGroupColor}">
-              ${u.allowGroupCreation ? 'Allowed' : 'Revoked'}
-            </span>
           </td>
           <td class="px-lg py-3">
             <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${blockColor}">
@@ -604,24 +597,6 @@
       }
     }
 
-    // Toggle Group Creation Permission Action
-    async function toggleGroupCreation(userId) {
-      try {
-        const res = await fetch(`/api/admin/users/${userId}/allow-group-creation`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await res.json();
-        if (data.success) {
-          showToast(data.message, 'success');
-          loadData();
-        } else {
-          showToast(data.message, 'error');
-        }
-      } catch (err) {
-        showToast('Connection handshake failure.', 'error');
-      }
-    }
 
     // Delete User Action
     async function deleteUser(userId) {

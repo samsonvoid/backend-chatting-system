@@ -442,7 +442,6 @@
         
         const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
         const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
-        const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20' : 'bg-slate-100 text-slate-500 border-transparent';
 
         const card = document.createElement('div');
         card.className = 'bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md user-card';
@@ -463,7 +462,6 @@
             <p class="flex justify-between"><span>Email:</span> <span class="font-mono text-xs font-semibold">${u.email}</span></p>
             <p class="flex justify-between"><span>Status:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span></p>
             <p class="flex justify-between"><span>Role:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span></p>
-            <p class="flex justify-between"><span>Group Creator:</span> <span onclick="toggleGroupCreation('${u.id}')" class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider border cursor-pointer ${allowGroupColor}">${u.allowGroupCreation ? 'Allowed' : 'Revoked'}</span></p>
             <p class="flex justify-between"><span>Access:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${blockColor}">${u.isBlocked ? 'Suspended' : 'Active'}</span></p>
           </div>
           <div class="flex justify-end gap-sm border-t border-slate-100 pt-sm">
@@ -522,23 +520,6 @@
       }
     }
 
-    async function toggleGroupCreation(userId) {
-      try {
-        const res = await fetch(`/api/admin/users/${userId}/allow-group-creation`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await res.json();
-        if (data.success) {
-          showToast(data.message, 'success');
-          loadData();
-        } else {
-          showToast(data.message, 'error');
-        }
-      } catch (err) {
-        showToast('Connection handshake failure.', 'error');
-      }
-    }
 
     async function deleteUser(userId) {
       try {
