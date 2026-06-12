@@ -594,24 +594,107 @@
       }
     }
 
+    // Reusable members checklist renderer with filtering and sorting
+    function renderChecklist(containerId, listType, selectedIdsSet, searchQuery = '', sortBy = 'az', selectedOnly = false) {
+      const listDiv = document.getElementById(containerId);
+      listDiv.innerHTML = '';
+
+      let filtered = allUsersCache.filter(u => {
+        const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              u.email.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSelected = !selectedOnly || selectedIdsSet.has(u.id);
+        return matchesSearch && matchesSelected;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortBy === 'az') {
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === 'za') {
+          return b.name.localeCompare(a.name);
+        } else if (sortBy === 'status') {
+          const getStatusRank = (s) => s === 'online' ? 0 : s === 'away' ? 1 : 2;
+          const rankA = getStatusRank(a.status);
+          const rankB = getStatusRank(b.status);
+          if (rankA !== rankB) return rankA - rankB;
+          return a.name.localeCompare(b.name);
+        }
+        return 0;
+      });
+
+      if (filtered.length === 0) {
+        listDiv.innerHTML = `<p class="text-center text-xs text-outline py-sm">No members found.</p>`;
+        return;
+      }
+
+      filtered.forEach(u => {
+        const isChecked = selectedIdsSet.has(u.id);
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-xs hover:bg-slate-50 rounded transition-all";
+        
+        const changeHandler = listType === 'create' 
+          ? `handleCreateRoomCheckboxChange('${u.id}', this.checked)` 
+          : `handleEditRoomCheckboxChange('${u.id}', this.checked)`;
+
+        const statusDot = u.status === 'online' ? 'bg-emerald-500' : u.status === 'away' ? 'bg-amber-500' : 'bg-slate-400';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-sm">
+            <input type="checkbox" id="chk-${listType}-${u.id}" value="${u.id}" ${isChecked ? 'checked' : ''} onchange="${changeHandler}" class="rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant cursor-pointer"/>
+            <label for="chk-${listType}-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none flex items-center gap-xs">
+              <span class="w-2 h-2 rounded-full ${statusDot}"></span>
+              <span class="font-bold">${u.name}</span>
+              <span class="text-outline text-[10px]">(${u.email})</span>
+            </label>
+          </div>
+        `;
+        listDiv.appendChild(item);
+      });
+    }
+
+    // Modal state checkboxes
+    let createRoomSelectedIds = new Set();
+    function handleCreateRoomCheckboxChange(userId, checked) {
+      if (checked) {
+        createRoomSelectedIds.add(userId);
+      } else {
+        createRoomSelectedIds.delete(userId);
+      }
+    }
+
+    let editRoomSelectedIds = new Set();
+    function handleEditRoomCheckboxChange(userId, checked) {
+      if (checked) {
+        editRoomSelectedIds.add(userId);
+      } else {
+        editRoomSelectedIds.delete(userId);
+      }
+    }
+
+    function filterCreateRoomUsers() {
+      const search = document.getElementById("create-room-user-search").value;
+      const sort = document.getElementById("create-room-user-sort").value;
+      const selectedOnly = document.getElementById("create-room-user-selected-only").checked;
+      renderChecklist("create-room-members-list", "create", createRoomSelectedIds, search, sort, selectedOnly);
+    }
+
+    function filterEditRoomUsers() {
+      const search = document.getElementById("edit-room-user-search").value;
+      const sort = document.getElementById("edit-room-user-sort").value;
+      const selectedOnly = document.getElementById("edit-room-user-selected-only").checked;
+      renderChecklist("edit-room-members-list", "edit", editRoomSelectedIds, search, sort, selectedOnly);
+    }
+
     // Create room modal handlers
     function openCreateRoomModal() {
       const modal = document.getElementById("create-room-modal");
       modal.classList.remove("hidden");
       
-      // Render members checklist
-      const membersListDiv = document.getElementById("create-room-members-list");
-      membersListDiv.innerHTML = '';
+      document.getElementById("create-room-user-search").value = '';
+      document.getElementById("create-room-user-sort").value = 'az';
+      document.getElementById("create-room-user-selected-only").checked = false;
       
-      allUsersCache.forEach(u => {
-        const item = document.createElement('div');
-        item.className = "flex items-center gap-sm";
-        item.innerHTML = `
-          <input type="checkbox" id="chk-create-${u.id}" value="${u.id}" class="chk-create-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
-          <label for="chk-create-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name} (${u.email})</label>
-        `;
-        membersListDiv.appendChild(item);
-      });
+      createRoomSelectedIds = new Set();
+      filterCreateRoomUsers();
     }
 
     function closeCreateRoomModal() {
@@ -624,9 +707,7 @@
       const groupName = document.getElementById("room-name").value;
       const groupAvatar = document.getElementById("room-avatar").value || undefined;
       const isPrivate = document.getElementById("room-is-private").checked;
-      
-      const checkedBoxes = document.querySelectorAll(".chk-create-member:checked");
-      const members = Array.from(checkedBoxes).map(cb => cb.value);
+      const members = Array.from(createRoomSelectedIds);
 
       try {
         const res = await fetch('/api/admin/conversations', {
@@ -654,19 +735,12 @@
       const modal = document.getElementById("members-modal");
       modal.classList.remove("hidden");
 
-      const membersListDiv = document.getElementById("edit-room-members-list");
-      membersListDiv.innerHTML = '';
-      
-      allUsersCache.forEach(u => {
-        const isMember = currentMemberIds.includes(u.id);
-        const item = document.createElement('div');
-        item.className = "flex items-center gap-sm";
-        item.innerHTML = `
-          <input type="checkbox" id="chk-edit-${u.id}" value="${u.id}" ${isMember ? 'checked' : ''} class="chk-edit-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
-          <label for="chk-edit-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name} (${u.email})</label>
-        `;
-        membersListDiv.appendChild(item);
-      });
+      document.getElementById("edit-room-user-search").value = '';
+      document.getElementById("edit-room-user-sort").value = 'az';
+      document.getElementById("edit-room-user-selected-only").checked = false;
+
+      editRoomSelectedIds = new Set(currentMemberIds);
+      filterEditRoomUsers();
 
       document.getElementById("save-members-btn").onclick = saveMembers;
     }
@@ -677,8 +751,7 @@
     }
 
     async function saveMembers() {
-      const checkedBoxes = document.querySelectorAll(".chk-edit-member:checked");
-      const members = Array.from(checkedBoxes).map(cb => cb.value);
+      const members = Array.from(editRoomSelectedIds);
 
       try {
         const res = await fetch(`/api/admin/conversations/${currentRoomIdForMembers}/members`, {
@@ -787,6 +860,23 @@
 
       <div class="space-y-xs">
         <label class="block font-label-md text-label-md font-bold text-outline">Assign Workspace Members</label>
+        
+        <!-- Checklist Controls -->
+        <div class="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between pb-xs">
+          <input type="text" id="create-room-user-search" oninput="filterCreateRoomUsers()" placeholder="Search members..." class="flex-1 min-w-0 px-2 py-1 bg-surface border border-outline-variant rounded text-xs text-on-background focus:outline-none focus:ring-1 focus:ring-primary"/>
+          <div class="flex items-center gap-xs">
+            <select id="create-room-user-sort" onchange="filterCreateRoomUsers()" class="px-2 py-1 bg-surface border border-outline-variant rounded text-xs text-on-background focus:outline-none">
+              <option value="az">Name (A-Z)</option>
+              <option value="za">Name (Z-A)</option>
+              <option value="status">Online Status</option>
+            </select>
+            <div class="flex items-center gap-[2px]">
+              <input type="checkbox" id="create-room-user-selected-only" onchange="filterCreateRoomUsers()" class="rounded text-primary h-3 w-3 bg-surface border-outline-variant"/>
+              <label for="create-room-user-selected-only" class="text-[10px] font-bold text-outline cursor-pointer select-none">Selected Only</label>
+            </div>
+          </div>
+        </div>
+
         <div id="create-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[200px] overflow-y-auto p-sm space-y-sm">
           <!-- Populated dynamically -->
         </div>
@@ -813,6 +903,22 @@
     <div class="flex-1 overflow-y-auto space-y-md pr-xs">
       <p class="font-body-sm text-body-sm text-on-surface-variant">Check or uncheck users below to add or remove them from this group chatroom.</p>
       
+      <!-- Checklist Controls -->
+      <div class="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between pb-xs">
+        <input type="text" id="edit-room-user-search" oninput="filterEditRoomUsers()" placeholder="Search members..." class="flex-1 min-w-0 px-2 py-1 bg-surface border border-outline-variant rounded text-xs text-on-background focus:outline-none focus:ring-1 focus:ring-primary"/>
+        <div class="flex items-center gap-xs">
+          <select id="edit-room-user-sort" onchange="filterEditRoomUsers()" class="px-2 py-1 bg-surface border border-outline-variant rounded text-xs text-on-background focus:outline-none">
+            <option value="az">Name (A-Z)</option>
+            <option value="za">Name (Z-A)</option>
+            <option value="status">Online Status</option>
+          </select>
+          <div class="flex items-center gap-[2px]">
+            <input type="checkbox" id="edit-room-user-selected-only" onchange="filterEditRoomUsers()" class="rounded text-primary h-3 w-3 bg-surface border-outline-variant"/>
+            <label for="edit-room-user-selected-only" class="text-[10px] font-bold text-outline cursor-pointer select-none">Selected Only</label>
+          </div>
+        </div>
+      </div>
+
       <div id="edit-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[250px] overflow-y-auto p-sm space-y-sm">
         <!-- Populated dynamically -->
       </div>
