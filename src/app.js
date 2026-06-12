@@ -35,6 +35,10 @@ app.use(cors({
     if (/\.vercel\.app$/i.test(origin)) {
       return callback(null, true);
     }
+    // Allow same-origin backend domains (like Clever Cloud deployments)
+    if (/\.cleverapps\.io$/i.test(origin)) {
+      return callback(null, true);
+    }
     // Disallow other origins
     callback(new Error('Not allowed by CORS'));
   },
