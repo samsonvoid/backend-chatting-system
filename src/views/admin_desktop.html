@@ -239,6 +239,55 @@
                     <span class="material-symbols-outlined text-[16px]">refresh</span> Reload
                 </button>
             </div>
+            
+            <!-- Inline Search and Filter Controls -->
+            <div class="p-md border-b border-outline-variant bg-surface-container-lowest flex flex-wrap gap-md items-center justify-between">
+                <div class="flex-1 min-w-[250px] relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
+                    <input type="text" id="member-dir-search" oninput="filterMembersDirectory()" placeholder="Search members by name or email..." class="w-full pl-10 pr-4 py-2 bg-surface border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none"/>
+                </div>
+                <div class="flex flex-wrap items-center gap-md">
+                    <!-- Role Filter -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Role:</span>
+                        <select id="member-dir-role-filter" onchange="filterMembersDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admins</option>
+                            <option value="user">Users</option>
+                        </select>
+                    </div>
+                    <!-- Access Filter -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Status:</span>
+                        <select id="member-dir-access-filter" onchange="filterMembersDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">All Access</option>
+                            <option value="active">Active</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <!-- Presence Filter -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Presence:</span>
+                        <select id="member-dir-presence-filter" onchange="filterMembersDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">All Presence</option>
+                            <option value="online">Online</option>
+                            <option value="away">Away</option>
+                            <option value="offline">Offline</option>
+                        </select>
+                    </div>
+                    <!-- Sort Selection -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Sort:</span>
+                        <select id="member-dir-sort" onchange="filterMembersDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="name_az">Name (A-Z)</option>
+                            <option value="name_za">Name (Z-A)</option>
+                            <option value="presence">Presence (Online First)</option>
+                            <option value="role">Role (Admins First)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -278,6 +327,36 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Inline Search and Filter Controls for Chatrooms -->
+            <div class="p-md border-b border-outline-variant bg-surface-container-lowest flex flex-wrap gap-md items-center justify-between">
+                <div class="flex-1 min-w-[250px] relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
+                    <input type="text" id="room-dir-search" oninput="filterChatroomsDirectory()" placeholder="Search chatrooms by name..." class="w-full pl-10 pr-4 py-2 bg-surface border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none"/>
+                </div>
+                <div class="flex items-center gap-md">
+                    <!-- Privacy Filter -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Privacy:</span>
+                        <select id="room-dir-privacy-filter" onchange="filterChatroomsDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">All Privacy</option>
+                            <option value="public">Public Only</option>
+                            <option value="private">Private Only</option>
+                        </select>
+                    </div>
+                    <!-- Sort Selection -->
+                    <div class="flex items-center gap-xs">
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">Sort:</span>
+                        <select id="room-dir-sort" onchange="filterChatroomsDirectory()" class="px-3 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="name_az">Name (A-Z)</option>
+                            <option value="name_za">Name (Z-A)</option>
+                            <option value="members_desc">Members (High-Low)</option>
+                            <option value="members_asc">Members (Low-High)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -360,77 +439,131 @@
         const data = await res.json();
         if (data.success) {
           allUsersCache = data.users; // Cache users list
-          const tableBody = document.getElementById('users-table-body');
-          tableBody.innerHTML = '';
-
-          data.users.forEach(u => {
-            const isOnline = u.status === 'online';
-            const isAway = u.status === 'away';
-            const statusColor = isOnline ? 'bg-emerald-100 text-emerald-800' : isAway ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
-            const statusDot = isOnline ? 'bg-emerald-500' : isAway ? 'bg-amber-500' : 'bg-slate-400';
-            
-            const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
-            const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
-            const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/25' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200';
-
-            const initials = u.avatar || 'CH';
-
-            const row = document.createElement('tr');
-            row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors user-row';
-            row.setAttribute('data-search', `${u.name} ${u.email} ${u.id}`.toLowerCase());
-
-            row.innerHTML = `
-              <td class="px-lg py-3 flex items-center gap-md">
-                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container font-bold text-sm flex items-center justify-center relative border border-outline-variant/30 select-none">
-                  ${initials}
-                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusDot} border-2 border-white rounded-full"></span>
-                </div>
-                <div>
-                  <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[180px]">${u.name}</p>
-                  <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[120px]">${u.id}</p>
-                </div>
-              </td>
-              <td class="px-lg py-3 font-mono text-xs text-on-surface-variant truncate max-w-[200px]">${u.email}</td>
-              <td class="px-lg py-3">
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span>
-              </td>
-              <td class="px-lg py-3">
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span>
-              </td>
-              <td class="px-lg py-3">
-                <span onclick="toggleGroupCreation('${u.id}')" class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border cursor-pointer transition-all ${allowGroupColor}">
-                  ${u.allowGroupCreation ? 'Allowed' : 'Revoked'}
-                </span>
-              </td>
-              <td class="px-lg py-3">
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${blockColor}">
-                  ${u.isBlocked ? 'Suspended' : 'Active'}
-                </span>
-              </td>
-              <td class="px-lg py-3 text-right">
-                <div class="flex justify-end gap-sm">
-                  <!-- Toggle Role -->
-                  <button onclick="toggleRole('${u.id}')" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Toggle Admin Role">
-                    <span class="material-symbols-outlined text-[20px]">shield</span>
-                  </button>
-                  <!-- Toggle Block -->
-                  <button onclick="toggleBlock('${u.id}')" class="p-2 hover:bg-slate-100 ${u.isBlocked ? 'text-emerald-600 hover:bg-emerald-50' : 'text-rose-600 hover:bg-rose-50'} rounded-lg transition-colors cursor-pointer" title="${u.isBlocked ? 'Unblock User' : 'Suspend User'}">
-                    <span class="material-symbols-outlined text-[20px]">${u.isBlocked ? 'check_circle' : 'block'}</span>
-                  </button>
-                  <!-- Delete Account -->
-                  <button onclick="openDeleteModal('${u.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Permanently Delete Account">
-                    <span class="material-symbols-outlined text-[20px]">delete</span>
-                  </button>
-                </div>
-              </td>
-            `;
-
-            tableBody.appendChild(row);
-          });
+          filterMembersDirectory();
         }
       } catch (err) {
         console.error('Failed to load users directory:', err);
       }
+    }
+
+    // Filter, sort, and render workspace members directory
+    function filterMembersDirectory() {
+      const searchVal = document.getElementById('member-dir-search').value.toLowerCase().trim();
+      const roleFilter = document.getElementById('member-dir-role-filter').value;
+      const accessFilter = document.getElementById('member-dir-access-filter').value;
+      const presenceFilter = document.getElementById('member-dir-presence-filter').value;
+      const sortBy = document.getElementById('member-dir-sort').value;
+
+      // Filter
+      let filtered = allUsersCache.filter(u => {
+        const matchesSearch = u.name.toLowerCase().includes(searchVal) || 
+                              u.email.toLowerCase().includes(searchVal) ||
+                              u.id.toLowerCase().includes(searchVal);
+        const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+        const matchesAccess = accessFilter === 'all' || 
+                              (accessFilter === 'active' && !u.isBlocked) || 
+                              (accessFilter === 'suspended' && u.isBlocked);
+        const matchesPresence = presenceFilter === 'all' || u.status === presenceFilter;
+
+        return matchesSearch && matchesRole && matchesAccess && matchesPresence;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortBy === 'name_az') {
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === 'name_za') {
+          return b.name.localeCompare(a.name);
+        } else if (sortBy === 'presence') {
+          const presenceRank = s => s === 'online' ? 0 : s === 'away' ? 1 : 2;
+          const rankDiff = presenceRank(a.status) - presenceRank(b.status);
+          if (rankDiff !== 0) return rankDiff;
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === 'role') {
+          const roleRank = r => r === 'admin' ? 0 : 1;
+          const rankDiff = roleRank(a.role) - roleRank(b.role);
+          if (rankDiff !== 0) return rankDiff;
+          return a.name.localeCompare(b.name);
+        }
+        return 0;
+      });
+
+      const tableBody = document.getElementById('users-table-body');
+      tableBody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-lg py-6 text-center text-on-surface-variant">No workspace members match the filters.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(u => {
+        const isOnline = u.status === 'online';
+        const isAway = u.status === 'away';
+        const statusColor = isOnline ? 'bg-emerald-100 text-emerald-800' : isAway ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800';
+        const statusDot = isOnline ? 'bg-emerald-500' : isAway ? 'bg-amber-500' : 'bg-slate-400';
+        
+        const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
+        const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
+        const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/25' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200';
+
+        const initials = u.avatar || 'CH';
+
+        const row = document.createElement('tr');
+        row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors user-row';
+        row.setAttribute('data-search', `${u.name} ${u.email} ${u.id}`.toLowerCase());
+
+        row.innerHTML = `
+          <td class="px-lg py-3 flex items-center gap-md">
+            <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container font-bold text-sm flex items-center justify-center relative border border-outline-variant/30 select-none">
+              ${initials}
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusDot} border-2 border-white rounded-full"></span>
+            </div>
+            <div>
+              <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[180px]">${u.name}</p>
+              <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[120px]">${u.id}</p>
+            </div>
+          </td>
+          <td class="px-lg py-3 font-mono text-xs text-on-surface-variant truncate max-w-[200px]">${u.email}</td>
+          <td class="px-lg py-3">
+            <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span>
+          </td>
+          <td class="px-lg py-3">
+            <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span>
+          </td>
+          <td class="px-lg py-3">
+            <span onclick="toggleGroupCreation('${u.id}')" class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border cursor-pointer transition-all ${allowGroupColor}">
+              ${u.allowGroupCreation ? 'Allowed' : 'Revoked'}
+            </span>
+          </td>
+          <td class="px-lg py-3">
+            <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${blockColor}">
+              ${u.isBlocked ? 'Suspended' : 'Active'}
+            </span>
+          </td>
+          <td class="px-lg py-3 text-right">
+            <div class="flex justify-end gap-sm">
+              <!-- Toggle Role -->
+              <button onclick="toggleRole('${u.id}')" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Toggle Admin Role">
+                <span class="material-symbols-outlined text-[20px]">shield</span>
+              </button>
+              <!-- Toggle Block -->
+              <button onclick="toggleBlock('${u.id}')" class="p-2 hover:bg-slate-100 ${u.isBlocked ? 'text-emerald-600 hover:bg-emerald-50' : 'text-rose-600 hover:bg-rose-50'} rounded-lg transition-colors cursor-pointer" title="${u.isBlocked ? 'Unblock User' : 'Suspend User'}">
+                <span class="material-symbols-outlined text-[20px]">${u.isBlocked ? 'check_circle' : 'block'}</span>
+              </button>
+              <!-- Delete Account -->
+              <button onclick="openDeleteModal('${u.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Permanently Delete Account">
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+      });
     }
 
     // Toggle Role Action
@@ -523,75 +656,115 @@
         roomsTab.classList.add('hidden');
         membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
         roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+        // Sync global search to member directory search
+        document.getElementById('user-search-input').value = document.getElementById('member-dir-search').value;
       } else {
         membersTab.classList.add('hidden');
         roomsTab.classList.remove('hidden');
         roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
         membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+        // Sync global search to room directory search
+        document.getElementById('user-search-input').value = document.getElementById('room-dir-search').value;
         loadRooms();
       }
     }
 
     // Load registered group chatrooms directory
+    let allRoomsCache = [];
     async function loadRooms() {
       try {
         const res = await fetch('/api/admin/conversations');
         const data = await res.json();
         if (data.success) {
-          const tableBody = document.getElementById('rooms-table-body');
-          tableBody.innerHTML = '';
-
-          if (data.conversations.length === 0) {
-            tableBody.innerHTML = `
-              <tr>
-                <td colspan="4" class="px-lg py-6 text-center text-on-surface-variant">No group chatrooms found. Create one to get started!</td>
-              </tr>
-            `;
-            return;
-          }
-
-          data.conversations.forEach(c => {
-            const avatarInitials = c.groupAvatar || 'GP';
-            const privacyColor = c.isPrivate ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-green-100 text-green-800 border-green-200';
-            
-            const row = document.createElement('tr');
-            row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors';
-
-            row.innerHTML = `
-              <td class="px-lg py-3 flex items-center gap-md">
-                <div class="w-10 h-10 rounded-full bg-secondary-container text-on-primary-container font-bold text-sm flex items-center justify-center border border-outline-variant/30 select-none uppercase">
-                  ${avatarInitials}
-                </div>
-                <div>
-                  <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[200px]">${c.groupName}</p>
-                  <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[150px]">${c.id}</p>
-                </div>
-              </td>
-              <td class="px-lg py-3">
-                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border ${privacyColor}">
-                  ${c.isPrivate ? 'Private' : 'Public'}
-                </span>
-              </td>
-              <td class="px-lg py-3 font-bold text-on-surface-variant">${c.members.length} member(s)</td>
-              <td class="px-lg py-3 text-right">
-                <div class="flex justify-end gap-sm">
-                  <!-- Manage Members -->
-                  <button onclick="openMembersModal('${c.id}', ${JSON.stringify(c.members.map(m => m.id)).replace(/"/g, '&quot;')})" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Manage Members">
-                    <span class="material-symbols-outlined text-[20px]">group_add</span>
-                  </button>
-                  <!-- Delete Group -->
-                  <button onclick="openDeleteRoomModal('${c.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Delete Group Chatroom">
-                    <span class="material-symbols-outlined text-[20px]">delete</span>
-                  </button>
-                </div>
-              </td>
-            `;
-            tableBody.appendChild(row);
-          });
+          allRoomsCache = data.conversations;
+          filterChatroomsDirectory();
         }
       } catch (err) {
         console.error('Failed to load rooms:', err);
       }
+    }
+
+    // Filter, sort, and render group chatrooms directory
+    function filterChatroomsDirectory() {
+      const searchVal = document.getElementById('room-dir-search').value.toLowerCase().trim();
+      const privacyFilter = document.getElementById('room-dir-privacy-filter').value;
+      const sortBy = document.getElementById('room-dir-sort').value;
+
+      // Filter
+      let filtered = allRoomsCache.filter(c => {
+        const matchesSearch = c.groupName.toLowerCase().includes(searchVal) ||
+                              c.id.toLowerCase().includes(searchVal);
+        const matchesPrivacy = privacyFilter === 'all' ||
+                               (privacyFilter === 'public' && !c.isPrivate) ||
+                               (privacyFilter === 'private' && c.isPrivate);
+
+        return matchesSearch && matchesPrivacy;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortBy === 'name_az') {
+          return a.groupName.localeCompare(b.groupName);
+        } else if (sortBy === 'name_za') {
+          return b.groupName.localeCompare(a.groupName);
+        } else if (sortBy === 'members_desc') {
+          return b.members.length - a.members.length;
+        } else if (sortBy === 'members_asc') {
+          return a.members.length - b.members.length;
+        }
+        return 0;
+      });
+
+      const tableBody = document.getElementById('rooms-table-body');
+      tableBody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-lg py-6 text-center text-on-surface-variant">No group chatrooms match the filters.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const avatarInitials = c.groupAvatar || 'GP';
+        const privacyColor = c.isPrivate ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-green-100 text-green-800 border-green-200';
+        
+        const row = document.createElement('tr');
+        row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors';
+
+        row.innerHTML = `
+          <td class="px-lg py-3 flex items-center gap-md">
+            <div class="w-10 h-10 rounded-full bg-secondary-container text-on-primary-container font-bold text-sm flex items-center justify-center border border-outline-variant/30 select-none uppercase">
+              ${avatarInitials}
+            </div>
+            <div>
+              <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[200px]">${c.groupName}</p>
+              <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[150px]">${c.id}</p>
+            </div>
+          </td>
+          <td class="px-lg py-3">
+            <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border ${privacyColor}">
+              ${c.isPrivate ? 'Private' : 'Public'}
+            </span>
+          </td>
+          <td class="px-lg py-3 font-bold text-on-surface-variant">${c.members.length} member(s)</td>
+          <td class="px-lg py-3 text-right">
+            <div class="flex justify-end gap-sm">
+              <!-- Manage Members -->
+              <button onclick="openMembersModal('${c.id}', ${JSON.stringify(c.members.map(m => m.id)).replace(/"/g, '&quot;')})" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Manage Members">
+                <span class="material-symbols-outlined text-[20px]">group_add</span>
+              </button>
+              <!-- Delete Group -->
+              <button onclick="openDeleteRoomModal('${c.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Delete Group Chatroom">
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
     }
 
     // Reusable members checklist renderer with filtering and sorting
@@ -809,17 +982,15 @@
 
     // Search Filtering
     function filterUsers() {
-      const query = document.getElementById('user-search-input').value.toLowerCase().trim();
-      const rows = document.querySelectorAll('.user-row');
-      
-      rows.forEach(row => {
-        const searchText = row.getAttribute('data-search') || '';
-        if (searchText.includes(query)) {
-          row.classList.remove('hidden');
-        } else {
-          row.classList.add('hidden');
-        }
-      });
+      const query = document.getElementById('user-search-input').value;
+      const isMembersTab = !document.getElementById('members-tab-content').classList.contains('hidden');
+      if (isMembersTab) {
+        document.getElementById('member-dir-search').value = query;
+        filterMembersDirectory();
+      } else {
+        document.getElementById('room-dir-search').value = query;
+        filterChatroomsDirectory();
+      }
     }
 
     // Load data sequence

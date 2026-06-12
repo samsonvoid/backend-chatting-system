@@ -176,8 +176,8 @@ export async function createChat(req, res) {
     const { type, members, groupName, groupAvatar, isPrivate } = req.body;
     const userId = req.user.id;
 
-    if (type === 'group' && req.user.allowGroupCreation === false) {
-      return res.status(403).json({ success: false, message: 'Forbidden. You do not have permission to create group chatrooms.' });
+    if (type === 'group' && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden. Only administrators can create group channels.' });
     }
 
     if (!members || !Array.isArray(members) || members.length === 0) {
