@@ -71,14 +71,17 @@ export async function protect(req, res, next) {
 export async function superAdminProtect(req, res, next) {
   let token;
 
-  // Read token from Cookies or Authorization header
+  // Read token from Cookies, Authorization header, or Query Parameters
   if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.query && req.query.token) {
+    token = req.query.token;
   }
 
   const isApiRequest = req.path.startsWith('/api') || req.headers.accept?.includes('application/json');
+  const frontendUrl = process.env.FRONTEND_URL || 'https://svschatplatformuidesign.vercel.app';
 
   if (!token) {
     if (isApiRequest) {
@@ -91,7 +94,7 @@ export async function superAdminProtect(req, res, next) {
       <div style="font-family: 'Geist', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #0b1c30; color: #ffffff; text-align: center; padding: 20px;">
         <h1 style="font-size: 3rem; color: #ba1a1a; margin-bottom: 1rem;">Access Denied</h1>
         <p style="font-size: 1.2rem; color: #c3c5d9; margin-bottom: 2rem;">No active session found. Please log in to CollabHub as a Super Admin.</p>
-        <a href="http://localhost:5173" style="background-color: #004ad3; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif;">Go to Login</a>
+        <a href="${frontendUrl}" style="background-color: #004ad3; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif;">Go to Login</a>
       </div>
     `);
   }
@@ -145,12 +148,22 @@ export async function superAdminProtect(req, res, next) {
         <div style="font-family: 'Geist', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #0b1c30; color: #ffffff; text-align: center; padding: 20px;">
           <h1 style="font-size: 3rem; color: #ba1a1a; margin-bottom: 1rem;">Forbidden</h1>
           <p style="font-size: 1.2rem; color: #c3c5d9; margin-bottom: 2rem;">Access is strictly restricted to the Super Admin (samsonprogrammer@gmail.com).</p>
-          <a href="http://localhost:5173" style="background-color: #004ad3; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif;">Go to Login</a>
+          <a href="${frontendUrl}" style="background-color: #004ad3; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif;">Go to Login</a>
         </div>
       `);
     }
 
     req.user = user;
+
+    // Set token in Cookie if not already set, so subsequent direct asset/API requests succeed
+    if (token && (!req.cookies || !req.cookies.token)) {
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      });
+    }
+
     next();
 
   } catch (error) {
