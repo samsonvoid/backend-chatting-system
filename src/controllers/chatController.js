@@ -173,8 +173,12 @@ export async function getChatMessages(req, res) {
  */
 export async function createChat(req, res) {
   try {
-    const { type, members, groupName, groupAvatar } = req.body;
+    const { type, members, groupName, groupAvatar, isPrivate } = req.body;
     const userId = req.user.id;
+
+    if (type === 'group' && req.user.allowGroupCreation === false) {
+      return res.status(403).json({ success: false, message: 'Forbidden. You do not have permission to create group chatrooms.' });
+    }
 
     if (!members || !Array.isArray(members) || members.length === 0) {
       return res.status(400).json({ success: false, message: 'Members array is required' });
@@ -208,8 +212,8 @@ export async function createChat(req, res) {
     // Create new conversation
     const conversationId = `c-${Date.now()}`;
     await pool.query(
-      `INSERT INTO conversations (id, type, group_name, group_avatar) VALUES ($1, $2, $3, $4)`,
-      [conversationId, type, type === 'group' ? groupName : null, type === 'group' ? groupAvatar : null]
+      `INSERT INTO conversations (id, type, group_name, group_avatar, is_private) VALUES ($1, $2, $3, $4, $5)`,
+      [conversationId, type, type === 'group' ? groupName : null, type === 'group' ? groupAvatar : null, type === 'group' ? (isPrivate === true) : false]
     );
 
     // Add members

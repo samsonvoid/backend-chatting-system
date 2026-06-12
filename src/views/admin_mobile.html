@@ -181,21 +181,44 @@
         </div>
     </section>
 
-    <!-- MEMBER DIRECTORY CARDS (STACKED LIST FOR MOBILE) -->
-    <section class="space-y-sm">
+    <!-- SUB-TABS NAVIGATION -->
+    <div class="flex gap-md border-b border-outline-variant pb-xs">
+        <button id="tab-members-btn" onclick="switchTab('members')" class="px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all">Members</button>
+        <button id="tab-rooms-btn" onclick="switchTab('rooms')" class="px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all">Chatrooms</button>
+    </div>
+
+    <!-- TAB 1: MEMBERS -->
+    <div id="members-tab-content" class="space-y-sm">
         <div class="flex justify-between items-center">
             <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Workspace Members</h3>
             <button onclick="loadData()" class="text-primary font-label-md text-label-md flex items-center gap-xs cursor-pointer">
                 <span class="material-symbols-outlined text-[14px]">refresh</span> Reload
             </button>
         </div>
-        
         <div id="users-cards-container" class="space-y-sm">
             <!-- Dynamic cards inject here -->
             <p class="text-center text-sm text-on-surface-variant py-md">Loading member directory...</p>
         </div>
-    </section>
+    </div>
 
+    <!-- TAB 2: ROOMS -->
+    <div id="rooms-tab-content" class="space-y-sm hidden">
+        <div class="flex justify-between items-center">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Group Chatrooms</h3>
+            <div class="flex gap-md">
+                <button onclick="openCreateRoomModal()" class="text-primary font-label-md text-label-md flex items-center gap-xs cursor-pointer font-bold">
+                    <span class="material-symbols-outlined text-[14px]">add_circle</span> Create
+                </button>
+                <button onclick="loadRooms()" class="text-primary font-label-md text-label-md flex items-center gap-xs cursor-pointer font-bold">
+                    <span class="material-symbols-outlined text-[14px]">refresh</span> Reload
+                </button>
+            </div>
+        </div>
+        <div id="rooms-cards-container" class="space-y-sm">
+            <!-- Dynamic cards inject here -->
+            <p class="text-center text-sm text-on-surface-variant py-md">Loading chatrooms...</p>
+        </div>
+    </div>
 </main>
 
 <!-- Bottom Nav Bar Mobile -->
@@ -268,11 +291,13 @@
       }
     }
 
+    let allUsersCache = [];
     async function loadUsers() {
       try {
         const res = await fetch('/api/admin/users');
         const data = await res.json();
         if (data.success) {
+          allUsersCache = data.users; // Cache users list
           const cardsContainer = document.getElementById('users-cards-container');
           cardsContainer.innerHTML = '';
 
@@ -284,6 +309,7 @@
             
             const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
             const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
+            const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20' : 'bg-slate-100 text-slate-500 border-transparent';
 
             const card = document.createElement('div');
             card.className = 'bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md user-card';
@@ -304,7 +330,8 @@
                 <p class="flex justify-between"><span>Email:</span> <span class="font-mono text-xs font-semibold">${u.email}</span></p>
                 <p class="flex justify-between"><span>Status:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${statusColor}">${u.status}</span></p>
                 <p class="flex justify-between"><span>Role:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span></p>
-                <p class="flex justify-between"><span>Status:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${blockColor}">${u.isBlocked ? 'Suspended' : 'Active'}</span></p>
+                <p class="flex justify-between"><span>Group Creator:</span> <span onclick="toggleGroupCreation('${u.id}')" class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider border cursor-pointer ${allowGroupColor}">${u.allowGroupCreation ? 'Allowed' : 'Revoked'}</span></p>
+                <p class="flex justify-between"><span>Access:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${blockColor}">${u.isBlocked ? 'Suspended' : 'Active'}</span></p>
               </div>
               <div class="flex justify-end gap-sm border-t border-slate-100 pt-sm">
                 <!-- Toggle Role -->
@@ -366,6 +393,24 @@
       }
     }
 
+    async function toggleGroupCreation(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/allow-group-creation`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
     async function deleteUser(userId) {
       try {
         const res = await fetch(`/api/admin/users/${userId}`, {
@@ -383,6 +428,220 @@
       } catch (err) {
         showToast('Connection handshake failure.', 'error');
         closeDeleteModal();
+      }
+    }
+
+    // Tab switcher logic
+    function switchTab(tab) {
+      const membersTab = document.getElementById('members-tab-content');
+      const roomsTab = document.getElementById('rooms-tab-content');
+      const membersBtn = document.getElementById('tab-members-btn');
+      const roomsBtn = document.getElementById('tab-rooms-btn');
+
+      if (tab === 'members') {
+        membersTab.classList.remove('hidden');
+        roomsTab.classList.add('hidden');
+        membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
+        roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+      } else {
+        membersTab.classList.add('hidden');
+        roomsTab.classList.remove('hidden');
+        roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
+        membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+        loadRooms();
+      }
+    }
+
+    // Load registered group chatrooms cards directory
+    async function loadRooms() {
+      try {
+        const res = await fetch('/api/admin/conversations');
+        const data = await res.json();
+        if (data.success) {
+          const cardsContainer = document.getElementById('rooms-cards-container');
+          cardsContainer.innerHTML = '';
+
+          if (data.conversations.length === 0) {
+            cardsContainer.innerHTML = `<p class="text-center text-sm text-on-surface-variant py-md">No group chatrooms found.</p>`;
+            return;
+          }
+
+          data.conversations.forEach(c => {
+            const avatarInitials = c.groupAvatar || 'GP';
+            const privacyColor = c.isPrivate ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800';
+            
+            const card = document.createElement('div');
+            card.className = 'bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md';
+
+            card.innerHTML = `
+              <div class="flex items-center gap-md">
+                <div class="w-12 h-12 rounded-full bg-secondary-container text-on-primary-container font-bold flex items-center justify-center border border-outline-variant/30 select-none uppercase">
+                  ${avatarInitials}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-label-lg text-label-lg font-bold text-on-surface truncate">${c.groupName}</h4>
+                  <p class="font-label-sm text-label-sm text-outline font-mono truncate">${c.id}</p>
+                </div>
+              </div>
+              <div class="space-y-1 font-body-sm text-body-sm border-t border-slate-100 pt-md text-on-surface-variant">
+                <p class="flex justify-between"><span>Privacy:</span> <span class="px-2 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider ${privacyColor}">${c.isPrivate ? 'Private' : 'Public'}</span></p>
+                <p class="flex justify-between"><span>Members:</span> <span class="font-bold">${c.members.length} user(s)</span></p>
+              </div>
+              <div class="flex justify-end gap-sm border-t border-slate-100 pt-sm">
+                <!-- Manage Members -->
+                <button onclick="openMembersModal('${c.id}', ${JSON.stringify(c.members.map(m => m.id)).replace(/"/g, '&quot;')})" class="flex-1 py-2 bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg flex items-center justify-center gap-xs font-bold text-xs" title="Manage Members">
+                  <span class="material-symbols-outlined text-[16px]">group_add</span> Members
+                </button>
+                <!-- Delete Group -->
+                <button onclick="openDeleteRoomModal('${c.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center" title="Delete Group Chatroom">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              </div>
+            `;
+            cardsContainer.appendChild(card);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load rooms:', err);
+      }
+    }
+
+    // Create room modal handlers (mobile)
+    function openCreateRoomModal() {
+      const modal = document.getElementById("create-room-modal");
+      modal.classList.remove("hidden");
+      
+      const membersListDiv = document.getElementById("create-room-members-list");
+      membersListDiv.innerHTML = '';
+      
+      allUsersCache.forEach(u => {
+        const item = document.createElement('div');
+        item.className = "flex items-center gap-sm";
+        item.innerHTML = `
+          <input type="checkbox" id="chk-create-mb-${u.id}" value="${u.id}" class="chk-create-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+          <label for="chk-create-mb-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name}</label>
+        `;
+        membersListDiv.appendChild(item);
+      });
+    }
+
+    function closeCreateRoomModal() {
+      document.getElementById("create-room-modal").classList.add("hidden");
+      document.getElementById("create-room-form").reset();
+    }
+
+    async function handleCreateRoom(e) {
+      e.preventDefault();
+      const groupName = document.getElementById("room-name").value;
+      const groupAvatar = document.getElementById("room-avatar").value || undefined;
+      const isPrivate = document.getElementById("room-is-private").checked;
+      
+      const checkedBoxes = document.querySelectorAll(".chk-create-member:checked");
+      const members = Array.from(checkedBoxes).map(cb => cb.value);
+
+      try {
+        const res = await fetch('/api/admin/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groupName, groupAvatar, isPrivate, members })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeCreateRoomModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Edit members modal handlers (mobile)
+    let currentRoomIdForMembers = null;
+    function openMembersModal(roomId, currentMemberIds) {
+      currentRoomIdForMembers = roomId;
+      const modal = document.getElementById("members-modal");
+      modal.classList.remove("hidden");
+
+      const membersListDiv = document.getElementById("edit-room-members-list");
+      membersListDiv.innerHTML = '';
+      
+      allUsersCache.forEach(u => {
+        const isMember = currentMemberIds.includes(u.id);
+        const item = document.createElement('div');
+        item.className = "flex items-center gap-sm";
+        item.innerHTML = `
+          <input type="checkbox" id="chk-edit-mb-${u.id}" value="${u.id}" ${isMember ? 'checked' : ''} class="chk-edit-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+          <label for="chk-edit-mb-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name}</label>
+        `;
+        membersListDiv.appendChild(item);
+      });
+
+      document.getElementById("save-members-btn").onclick = saveMembers;
+    }
+
+    function closeMembersModal() {
+      document.getElementById("members-modal").classList.add("hidden");
+      currentRoomIdForMembers = null;
+    }
+
+    async function saveMembers() {
+      const checkedBoxes = document.querySelectorAll(".chk-edit-member:checked");
+      const members = Array.from(checkedBoxes).map(cb => cb.value);
+
+      try {
+        const res = await fetch(`/api/admin/conversations/${currentRoomIdForMembers}/members`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ members })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeMembersModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Delete chatroom modal handlers (mobile)
+    let roomIdToDelete = null;
+    function openDeleteRoomModal(roomId) {
+      roomIdToDelete = roomId;
+      const modal = document.getElementById("delete-room-modal");
+      modal.classList.remove("hidden");
+      
+      document.getElementById("confirm-delete-room-btn").onclick = deleteRoom;
+    }
+
+    function closeDeleteRoomModal() {
+      roomIdToDelete = null;
+      document.getElementById("delete-room-modal").classList.add("hidden");
+    }
+
+    async function deleteRoom() {
+      try {
+        const res = await fetch(`/api/admin/conversations/${roomIdToDelete}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeDeleteRoomModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+          closeDeleteRoomModal();
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+        closeDeleteRoomModal();
       }
     }
 
@@ -408,5 +667,85 @@
     loadData();
     setInterval(loadStats, 5000);
 </script>
+
+<!-- CREATE CHATROOM MODAL -->
+<div id="create-room-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant w-full rounded-2xl shadow-2xl p-lg space-y-lg flex flex-col max-h-[85vh]">
+    <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+      <h3 class="font-headline-sm text-headline-sm font-bold text-primary">Create Chatroom</h3>
+      <button onclick="closeCreateRoomModal()" class="text-outline hover:text-on-surface cursor-pointer flex items-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <form id="create-room-form" onsubmit="handleCreateRoom(event)" class="space-y-md flex-1 overflow-y-auto pr-xs">
+      <div class="form-group space-y-xs">
+        <label for="room-name" class="block font-label-md text-label-md font-bold text-outline">Group Name</label>
+        <input type="text" id="room-name" required placeholder="e.g. Project Apollo" class="w-full px-md py-sm bg-surface border border-outline-variant rounded-lg text-on-background focus:ring-2 focus:ring-primary focus:outline-none"/>
+      </div>
+      <div class="form-group space-y-xs">
+        <label for="room-avatar" class="block font-label-md text-label-md font-bold text-outline">Avatar (Initials)</label>
+        <input type="text" id="room-avatar" placeholder="e.g. PA" maxlength="3" class="w-full px-md py-sm bg-surface border border-outline-variant rounded-lg text-on-background focus:ring-2 focus:ring-primary focus:outline-none"/>
+      </div>
+      <div class="flex items-center gap-sm">
+        <input type="checkbox" id="room-is-private" class="rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+        <label for="room-is-private" class="font-label-md text-label-md font-bold text-outline cursor-pointer select-none">Private Room</label>
+      </div>
+
+      <div class="space-y-xs">
+        <label class="block font-label-md text-label-md font-bold text-outline">Assign Members</label>
+        <div id="create-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[150px] overflow-y-auto p-sm space-y-sm">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-md pt-md border-t border-outline-variant">
+        <button type="button" onclick="closeCreateRoomModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg cursor-pointer">Cancel</button>
+        <button type="submit" class="px-xl py-sm font-label-md text-label-md bg-primary text-white rounded-lg hover:bg-primary/95 font-bold cursor-pointer">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MANAGE MEMBERS MODAL -->
+<div id="members-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant w-full rounded-2xl shadow-2xl p-lg space-y-lg flex flex-col max-h-[85vh]">
+    <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+      <h3 class="font-headline-sm text-headline-sm font-bold text-primary">Manage Members</h3>
+      <button onclick="closeMembersModal()" class="text-outline hover:text-on-surface cursor-pointer flex items-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto space-y-md pr-xs">
+      <p class="font-body-sm text-body-sm text-on-surface-variant font-medium">Add or remove users from this group.</p>
+      
+      <div id="edit-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[200px] overflow-y-auto p-sm space-y-sm">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-md pt-md border-t border-outline-variant">
+      <button onclick="closeMembersModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg cursor-pointer">Cancel</button>
+      <button id="save-members-btn" class="px-xl py-sm font-label-md text-label-md bg-primary text-white rounded-lg hover:bg-primary/95 font-bold cursor-pointer">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ROOM CONFIRMATION MODAL -->
+<div id="delete-room-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant w-full rounded-2xl shadow-2xl p-lg space-y-lg">
+    <div class="flex items-center gap-md text-error">
+      <span class="material-symbols-outlined text-[32px]">warning</span>
+      <h3 class="font-headline-sm text-headline-sm font-bold">Delete Chatroom?</h3>
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant">Are you sure? This will delete this group and all its messages permanently.</p>
+    <div class="flex justify-end gap-md pt-sm">
+      <button onclick="closeDeleteRoomModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg cursor-pointer">Cancel</button>
+      <button id="confirm-delete-room-btn" class="px-xl py-sm font-label-md text-label-md bg-error text-white rounded-lg hover:bg-error/95 font-bold cursor-pointer">Delete</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

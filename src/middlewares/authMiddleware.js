@@ -28,7 +28,7 @@ export async function protect(req, res, next) {
     // 4. Query PostgreSQL database to fetch matching user details (all profile columns)
     const { rows } = await pool.query(
       `SELECT id, name, username, email, avatar, status, bio, theme, accent_color, font_size,
-              new_messages_alert, mentions_only_alert, sound_effects_alert
+              new_messages_alert, mentions_only_alert, sound_effects_alert, role, is_blocked, allow_group_creation
        FROM users WHERE id = $1`,
       [decoded.id]
     );
@@ -55,7 +55,10 @@ export async function protect(req, res, next) {
       fontSize: u.font_size,
       newMessagesAlert: u.new_messages_alert,
       mentionsOnlyAlert: u.mentions_only_alert,
-      soundEffectsAlert: u.sound_effects_alert
+      soundEffectsAlert: u.sound_effects_alert,
+      role: u.role,
+      isBlocked: u.is_blocked,
+      allowGroupCreation: u.allow_group_creation
     };
     next();
 
@@ -213,7 +216,7 @@ export async function superAdminProtect(req, res, next) {
 
     const { rows } = await pool.query(
       `SELECT id, name, username, email, avatar, status, bio, theme, accent_color, font_size,
-              new_messages_alert, mentions_only_alert, sound_effects_alert
+              new_messages_alert, mentions_only_alert, sound_effects_alert, role, is_blocked, allow_group_creation
        FROM users WHERE id = $1`,
       [decoded.id]
     );
@@ -243,7 +246,10 @@ export async function superAdminProtect(req, res, next) {
       fontSize: raw.font_size,
       newMessagesAlert: raw.new_messages_alert,
       mentionsOnlyAlert: raw.mentions_only_alert,
-      soundEffectsAlert: raw.sound_effects_alert
+      soundEffectsAlert: raw.sound_effects_alert,
+      role: raw.role,
+      isBlocked: raw.is_blocked,
+      allowGroupCreation: raw.allow_group_creation
     };
 
     // Enforce that only the Super Admin email "samsonprogrammer@gmail.com" can access

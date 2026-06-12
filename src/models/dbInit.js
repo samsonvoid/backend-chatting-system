@@ -80,6 +80,8 @@ export async function initializeDatabase() {
         "ALTER TABLE conversation_users ADD COLUMN IF NOT EXISTS last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN DEFAULT false",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_group_creation BOOLEAN DEFAULT true",
+        "ALTER TABLE conversations ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false",
         "ALTER TABLE users ALTER COLUMN avatar TYPE TEXT",
         "ALTER TABLE conversations ALTER COLUMN group_avatar TYPE TEXT",
       ];

@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
   mentions_only_alert BOOLEAN DEFAULT false,
   sound_effects_alert BOOLEAN DEFAULT true,
   role VARCHAR(20) DEFAULT 'user',
-  is_blocked BOOLEAN DEFAULT false
+  is_blocked BOOLEAN DEFAULT false,
+  allow_group_creation BOOLEAN DEFAULT true
 );
 
 -- 2. Conversations Table
@@ -27,7 +28,8 @@ CREATE TABLE IF NOT EXISTS conversations (
   id VARCHAR(255) PRIMARY KEY,
   type VARCHAR(20) DEFAULT 'direct', -- 'direct' or 'group'
   group_name VARCHAR(100) NULL,
-  group_avatar TEXT NULL
+  group_avatar TEXT NULL,
+  is_private BOOLEAN DEFAULT false
 );
 
 -- 3. Conversation Users Join Table (Many-to-Many relationship)

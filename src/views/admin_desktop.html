@@ -223,35 +223,80 @@
         </div>
     </section>
 
-    <!-- USERS DIRECTORY TABLE -->
-    <section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-        <div class="px-md py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
-            <h3 class="font-headline-sm text-headline-sm font-bold">Workspace Member Directory</h3>
-            <button onclick="loadData()" class="text-primary font-label-md text-label-md hover:underline flex items-center gap-xs cursor-pointer">
-                <span class="material-symbols-outlined text-[16px]">refresh</span> Reload
-            </button>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="font-label-sm text-label-sm text-outline border-b border-outline-variant bg-slate-50/50">
-                        <th class="px-lg py-4">User Details</th>
-                        <th class="px-lg py-4">Email</th>
-                        <th class="px-lg py-4">Session Status</th>
-                        <th class="px-lg py-4">Security Role</th>
-                        <th class="px-lg py-4">Access Status</th>
-                        <th class="px-lg py-4 text-right">Management Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table-body" class="font-body-sm text-body-sm">
-                    <!-- Dynamic Rows Insertion -->
-                    <tr>
-                      <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">Loading workspace members list...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    <!-- SUB-TABS NAVIGATION -->
+    <div class="flex gap-md border-b border-outline-variant pb-xs">
+        <button id="tab-members-btn" onclick="switchTab('members')" class="px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all">Workspace Members</button>
+        <button id="tab-rooms-btn" onclick="switchTab('rooms')" class="px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all">Group Chatrooms</button>
+    </div>
+
+    <!-- TAB 1: MEMBERS -->
+    <div id="members-tab-content" class="flex flex-col gap-lg">
+        <!-- USERS DIRECTORY TABLE -->
+        <section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="px-md py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                <h3 class="font-headline-sm text-headline-sm font-bold">Workspace Member Directory</h3>
+                <button onclick="loadData()" class="text-primary font-label-md text-label-md hover:underline flex items-center gap-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">refresh</span> Reload
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="font-label-sm text-label-sm text-outline border-b border-outline-variant bg-slate-50/50">
+                            <th class="px-lg py-4">User Details</th>
+                            <th class="px-lg py-4">Email</th>
+                            <th class="px-lg py-4">Session Status</th>
+                            <th class="px-lg py-4">Security Role</th>
+                            <th class="px-lg py-4">Group Allowed</th>
+                            <th class="px-lg py-4">Access Status</th>
+                            <th class="px-lg py-4 text-right">Management Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body" class="font-body-sm text-body-sm">
+                        <!-- Dynamic Rows Insertion -->
+                        <tr>
+                          <td colspan="7" class="px-lg py-6 text-center text-on-surface-variant">Loading workspace members list...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- TAB 2: ROOMS -->
+    <div id="rooms-tab-content" class="flex flex-col gap-lg hidden">
+        <!-- CHATROOMS DIRECTORY TABLE -->
+        <section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <div class="px-md py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                <h3 class="font-headline-sm text-headline-sm font-bold">Workspace Group Chatrooms</h3>
+                <div class="flex items-center gap-md">
+                    <button onclick="openCreateRoomModal()" class="bg-primary text-white font-label-md text-label-md px-md py-sm rounded-lg hover:bg-primary/95 transition-all flex items-center gap-xs cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span> Create Chatroom
+                    </button>
+                    <button onclick="loadRooms()" class="text-primary font-label-md text-label-md hover:underline flex items-center gap-xs cursor-pointer font-bold">
+                        <span class="material-symbols-outlined text-[16px]">refresh</span> Reload
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="font-label-sm text-label-sm text-outline border-b border-outline-variant bg-slate-50/50">
+                            <th class="px-lg py-4">Group Details</th>
+                            <th class="px-lg py-4">Room Privacy</th>
+                            <th class="px-lg py-4">Total Members</th>
+                            <th class="px-lg py-4 text-right">Management Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rooms-table-body" class="font-body-sm text-body-sm">
+                        <tr>
+                          <td colspan="4" class="px-lg py-6 text-center text-on-surface-variant">Loading chatrooms...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 </main>
 
 <script>
@@ -308,11 +353,13 @@
     }
 
     // Load registered users directory
+    let allUsersCache = [];
     async function loadUsers() {
       try {
         const res = await fetch('/api/admin/users');
         const data = await res.json();
         if (data.success) {
+          allUsersCache = data.users; // Cache users list
           const tableBody = document.getElementById('users-table-body');
           tableBody.innerHTML = '';
 
@@ -324,6 +371,7 @@
             
             const roleColor = u.role === 'admin' ? 'bg-indigo-100 text-indigo-800 font-bold border border-indigo-200' : 'bg-slate-100 text-slate-600';
             const blockColor = u.isBlocked ? 'bg-rose-100 text-rose-800 border border-rose-200 font-bold' : 'bg-green-100 text-green-800 border border-green-200';
+            const allowGroupColor = u.allowGroupCreation ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/25' : 'bg-slate-100 text-slate-500 border-transparent hover:bg-slate-200';
 
             const initials = u.avatar || 'CH';
 
@@ -348,6 +396,11 @@
               </td>
               <td class="px-lg py-3">
                 <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${roleColor}">${u.role}</span>
+              </td>
+              <td class="px-lg py-3">
+                <span onclick="toggleGroupCreation('${u.id}')" class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border cursor-pointer transition-all ${allowGroupColor}">
+                  ${u.allowGroupCreation ? 'Allowed' : 'Revoked'}
+                </span>
               </td>
               <td class="px-lg py-3">
                 <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${blockColor}">
@@ -418,6 +471,25 @@
       }
     }
 
+    // Toggle Group Creation Permission Action
+    async function toggleGroupCreation(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/allow-group-creation`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadData();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
     // Delete User Action
     async function deleteUser(userId) {
       try {
@@ -436,6 +508,229 @@
       } catch (err) {
         showToast('Connection handshake failure.', 'error');
         closeDeleteModal();
+      }
+    }
+
+    // Tab switcher logic
+    function switchTab(tab) {
+      const membersTab = document.getElementById('members-tab-content');
+      const roomsTab = document.getElementById('rooms-tab-content');
+      const membersBtn = document.getElementById('tab-members-btn');
+      const roomsBtn = document.getElementById('tab-rooms-btn');
+
+      if (tab === 'members') {
+        membersTab.classList.remove('hidden');
+        roomsTab.classList.add('hidden');
+        membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
+        roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+      } else {
+        membersTab.classList.add('hidden');
+        roomsTab.classList.remove('hidden');
+        roomsBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-primary text-primary font-bold cursor-pointer transition-all";
+        membersBtn.className = "px-md py-sm font-label-md text-label-md border-b-2 border-transparent text-outline hover:text-on-surface-variant cursor-pointer transition-all";
+        loadRooms();
+      }
+    }
+
+    // Load registered group chatrooms directory
+    async function loadRooms() {
+      try {
+        const res = await fetch('/api/admin/conversations');
+        const data = await res.json();
+        if (data.success) {
+          const tableBody = document.getElementById('rooms-table-body');
+          tableBody.innerHTML = '';
+
+          if (data.conversations.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="4" class="px-lg py-6 text-center text-on-surface-variant">No group chatrooms found. Create one to get started!</td>
+              </tr>
+            `;
+            return;
+          }
+
+          data.conversations.forEach(c => {
+            const avatarInitials = c.groupAvatar || 'GP';
+            const privacyColor = c.isPrivate ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-green-100 text-green-800 border-green-200';
+            
+            const row = document.createElement('tr');
+            row.className = 'border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors';
+
+            row.innerHTML = `
+              <td class="px-lg py-3 flex items-center gap-md">
+                <div class="w-10 h-10 rounded-full bg-secondary-container text-on-primary-container font-bold text-sm flex items-center justify-center border border-outline-variant/30 select-none uppercase">
+                  ${avatarInitials}
+                </div>
+                <div>
+                  <p class="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[200px]">${c.groupName}</p>
+                  <p class="font-label-sm text-label-sm text-outline font-mono truncate max-w-[150px]">${c.id}</p>
+                </div>
+              </td>
+              <td class="px-lg py-3">
+                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border ${privacyColor}">
+                  ${c.isPrivate ? 'Private' : 'Public'}
+                </span>
+              </td>
+              <td class="px-lg py-3 font-bold text-on-surface-variant">${c.members.length} member(s)</td>
+              <td class="px-lg py-3 text-right">
+                <div class="flex justify-end gap-sm">
+                  <!-- Manage Members -->
+                  <button onclick="openMembersModal('${c.id}', ${JSON.stringify(c.members.map(m => m.id)).replace(/"/g, '&quot;')})" class="p-2 hover:bg-slate-100 text-on-surface-variant hover:text-primary rounded-lg transition-colors cursor-pointer" title="Manage Members">
+                    <span class="material-symbols-outlined text-[20px]">group_add</span>
+                  </button>
+                  <!-- Delete Group -->
+                  <button onclick="openDeleteRoomModal('${c.id}')" class="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors cursor-pointer" title="Delete Group Chatroom">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load rooms:', err);
+      }
+    }
+
+    // Create room modal handlers
+    function openCreateRoomModal() {
+      const modal = document.getElementById("create-room-modal");
+      modal.classList.remove("hidden");
+      
+      // Render members checklist
+      const membersListDiv = document.getElementById("create-room-members-list");
+      membersListDiv.innerHTML = '';
+      
+      allUsersCache.forEach(u => {
+        const item = document.createElement('div');
+        item.className = "flex items-center gap-sm";
+        item.innerHTML = `
+          <input type="checkbox" id="chk-create-${u.id}" value="${u.id}" class="chk-create-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+          <label for="chk-create-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name} (${u.email})</label>
+        `;
+        membersListDiv.appendChild(item);
+      });
+    }
+
+    function closeCreateRoomModal() {
+      document.getElementById("create-room-modal").classList.add("hidden");
+      document.getElementById("create-room-form").reset();
+    }
+
+    async function handleCreateRoom(e) {
+      e.preventDefault();
+      const groupName = document.getElementById("room-name").value;
+      const groupAvatar = document.getElementById("room-avatar").value || undefined;
+      const isPrivate = document.getElementById("room-is-private").checked;
+      
+      const checkedBoxes = document.querySelectorAll(".chk-create-member:checked");
+      const members = Array.from(checkedBoxes).map(cb => cb.value);
+
+      try {
+        const res = await fetch('/api/admin/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groupName, groupAvatar, isPrivate, members })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeCreateRoomModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Edit members modal handlers
+    let currentRoomIdForMembers = null;
+    function openMembersModal(roomId, currentMemberIds) {
+      currentRoomIdForMembers = roomId;
+      const modal = document.getElementById("members-modal");
+      modal.classList.remove("hidden");
+
+      const membersListDiv = document.getElementById("edit-room-members-list");
+      membersListDiv.innerHTML = '';
+      
+      allUsersCache.forEach(u => {
+        const isMember = currentMemberIds.includes(u.id);
+        const item = document.createElement('div');
+        item.className = "flex items-center gap-sm";
+        item.innerHTML = `
+          <input type="checkbox" id="chk-edit-${u.id}" value="${u.id}" ${isMember ? 'checked' : ''} class="chk-edit-member rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+          <label for="chk-edit-${u.id}" class="font-body-sm text-body-sm text-on-surface cursor-pointer select-none">${u.name} (${u.email})</label>
+        `;
+        membersListDiv.appendChild(item);
+      });
+
+      document.getElementById("save-members-btn").onclick = saveMembers;
+    }
+
+    function closeMembersModal() {
+      document.getElementById("members-modal").classList.add("hidden");
+      currentRoomIdForMembers = null;
+    }
+
+    async function saveMembers() {
+      const checkedBoxes = document.querySelectorAll(".chk-edit-member:checked");
+      const members = Array.from(checkedBoxes).map(cb => cb.value);
+
+      try {
+        const res = await fetch(`/api/admin/conversations/${currentRoomIdForMembers}/members`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ members })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeMembersModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+      }
+    }
+
+    // Delete chatroom modal handlers
+    let roomIdToDelete = null;
+    function openDeleteRoomModal(roomId) {
+      roomIdToDelete = roomId;
+      const modal = document.getElementById("delete-room-modal");
+      modal.classList.remove("hidden");
+      
+      document.getElementById("confirm-delete-room-btn").onclick = deleteRoom;
+    }
+
+    function closeDeleteRoomModal() {
+      roomIdToDelete = null;
+      document.getElementById("delete-room-modal").classList.add("hidden");
+    }
+
+    async function deleteRoom() {
+      try {
+        const res = await fetch(`/api/admin/conversations/${roomIdToDelete}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          closeDeleteRoomModal();
+          loadRooms();
+        } else {
+          showToast(data.message, 'error');
+          closeDeleteRoomModal();
+        }
+      } catch (err) {
+        showToast('Connection handshake failure.', 'error');
+        closeDeleteRoomModal();
       }
     }
 
@@ -465,5 +760,85 @@
     // Auto-poll stats every 5 seconds
     setInterval(loadStats, 5000);
 </script>
+
+<!-- CREATE CHATROOM MODAL -->
+<div id="create-room-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant max-w-lg w-full rounded-2xl shadow-2xl p-lg space-y-lg animate-fade-in flex flex-col max-h-[85vh]">
+    <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+      <h3 class="font-headline-sm text-headline-sm font-bold text-primary">Create Group Chatroom</h3>
+      <button onclick="closeCreateRoomModal()" class="text-outline hover:text-on-surface cursor-pointer flex items-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <form id="create-room-form" onsubmit="handleCreateRoom(event)" class="space-y-md flex-1 overflow-y-auto pr-xs">
+      <div class="form-group space-y-xs">
+        <label for="room-name" class="block font-label-md text-label-md font-bold text-outline">Group Name</label>
+        <input type="text" id="room-name" required placeholder="e.g. Project Apollo" class="w-full px-md py-sm bg-surface border border-outline-variant rounded-lg text-on-background focus:ring-2 focus:ring-primary focus:outline-none"/>
+      </div>
+      <div class="form-group space-y-xs">
+        <label for="room-avatar" class="block font-label-md text-label-md font-bold text-outline">Group Avatar (Initials)</label>
+        <input type="text" id="room-avatar" placeholder="e.g. PA" maxlength="3" class="w-full px-md py-sm bg-surface border border-outline-variant rounded-lg text-on-background focus:ring-2 focus:ring-primary focus:outline-none"/>
+      </div>
+      <div class="flex items-center gap-sm">
+        <input type="checkbox" id="room-is-private" class="rounded text-primary focus:ring-primary h-4 w-4 bg-surface border-outline-variant"/>
+        <label for="room-is-private" class="font-label-md text-label-md font-bold text-outline cursor-pointer select-none">Private Room (invitation only)</label>
+      </div>
+
+      <div class="space-y-xs">
+        <label class="block font-label-md text-label-md font-bold text-outline">Assign Workspace Members</label>
+        <div id="create-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[200px] overflow-y-auto p-sm space-y-sm">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-md pt-md border-t border-outline-variant">
+        <button type="button" onclick="closeCreateRoomModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors cursor-pointer">Cancel</button>
+        <button type="submit" class="px-xl py-sm font-label-md text-label-md bg-primary text-white rounded-lg hover:bg-primary/95 transition-all cursor-pointer font-bold">Create Room</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MANAGE MEMBERS MODAL -->
+<div id="members-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant max-w-lg w-full rounded-2xl shadow-2xl p-lg space-y-lg animate-fade-in flex flex-col max-h-[85vh]">
+    <div class="flex justify-between items-center border-b border-outline-variant pb-md">
+      <h3 class="font-headline-sm text-headline-sm font-bold text-primary">Manage Chatroom Members</h3>
+      <button onclick="closeMembersModal()" class="text-outline hover:text-on-surface cursor-pointer flex items-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto space-y-md pr-xs">
+      <p class="font-body-sm text-body-sm text-on-surface-variant">Check or uncheck users below to add or remove them from this group chatroom.</p>
+      
+      <div id="edit-room-members-list" class="border border-outline-variant rounded-lg bg-surface max-h-[250px] overflow-y-auto p-sm space-y-sm">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-md pt-md border-t border-outline-variant">
+      <button onclick="closeMembersModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors cursor-pointer">Cancel</button>
+      <button id="save-members-btn" class="px-xl py-sm font-label-md text-label-md bg-primary text-white rounded-lg hover:bg-primary/95 transition-all cursor-pointer font-bold">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ROOM CONFIRMATION MODAL -->
+<div id="delete-room-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-md hidden">
+  <div class="bg-surface-container-lowest border border-outline-variant max-w-md w-full rounded-2xl shadow-2xl p-lg space-y-lg animate-fade-in">
+    <div class="flex items-center gap-md text-error">
+      <span class="material-symbols-outlined text-[32px]">warning</span>
+      <h3 class="font-headline-sm text-headline-sm font-bold">Delete Group Chatroom?</h3>
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant">This action is irreversible. It will permanently delete this group chatroom, all associated message logs, and shared attachments for all users.</p>
+    <div class="flex justify-end gap-md pt-sm">
+      <button onclick="closeDeleteRoomModal()" class="px-lg py-sm font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors cursor-pointer">Cancel</button>
+      <button id="confirm-delete-room-btn" class="px-xl py-sm font-label-md text-label-md bg-error text-white rounded-lg hover:bg-error/95 transition-all cursor-pointer font-bold">Delete Room</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
