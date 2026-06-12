@@ -360,3 +360,47 @@ export async function getAllUsers(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to fetch users directory' });
   }
 }
+
+/**
+ * @desc    Admin login handler for direct form posts
+ * @route   POST /api/auth/admin-login
+ * @access  Public
+ */
+export async function adminLogin(req, res) {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('<h1>Validation Error</h1><p>Email and password are required.</p>');
+  }
+
+  try {
+    const lowercaseEmail = email.toLowerCase().trim();
+    if (lowercaseEmail !== 'samsonprogrammer@gmail.com') {
+      return res.status(403).send('<h1>Access Denied</h1><p>This login is strictly restricted to the Super Admin.</p>');
+    }
+
+    const { rows } = await pool.query(
+      'SELECT id, password_hash FROM users WHERE email = $1',
+      [lowercaseEmail]
+    );
+
+    if (rows.length === 0) {
+      return res.redirect('/admin?error=invalid_credentials');
+    }
+
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.redirect('/admin?error=invalid_credentials');
+    }
+
+    // Set HTTP-only Cookie
+    setTokenCookie(res, user.id);
+
+    // Redirect straight to Admin Portal page
+    return res.redirect('/admin');
+
+  } catch (error) {
+    console.error('[Admin Login Controller] Error:', error);
+    return res.status(500).send('<h1>Internal Server Error</h1><p>Failed to process admin authentication.</p>');
+  }
+}
