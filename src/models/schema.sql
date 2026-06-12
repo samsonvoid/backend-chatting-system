@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(100),
   email VARCHAR(255) UNIQUE,
   password_hash VARCHAR(255),
-  avatar VARCHAR(255),
+  avatar TEXT,
   status VARCHAR(20) DEFAULT 'offline',
   bio TEXT,
   theme VARCHAR(20) DEFAULT 'light',
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS conversations (
   id VARCHAR(255) PRIMARY KEY,
   type VARCHAR(20) DEFAULT 'direct', -- 'direct' or 'group'
   group_name VARCHAR(100) NULL,
-  group_avatar VARCHAR(255) NULL
+  group_avatar TEXT NULL
 );
 
 -- 3. Conversation Users Join Table (Many-to-Many relationship)
