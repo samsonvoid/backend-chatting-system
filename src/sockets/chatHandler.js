@@ -73,14 +73,16 @@ export default function registerChatHandlers(io, socket) {
       );
 
       // B. Fetch sender details to attach profile info
-      const senderResult = await pool.query('SELECT name FROM users WHERE id = $1', [senderId]);
+      const senderResult = await pool.query('SELECT name, avatar FROM users WHERE id = $1', [senderId]);
       const senderName = senderResult.rows.length > 0 ? senderResult.rows[0].name : 'Unknown';
+      const senderAvatar = senderResult.rows.length > 0 ? senderResult.rows[0].avatar : 'SO';
 
       const newMessage = {
         id: messageId,
         conversationId,
         senderId,
         senderName,
+        senderAvatar,
         content: content.trim(),
         timestamp,
         status: 'sent',

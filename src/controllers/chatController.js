@@ -148,7 +148,7 @@ export async function getChatMessages(req, res) {
 
     // 2. Fetch all messages (Ordered oldest to newest for chat UI)
     const { rows: messages } = await pool.query(
-      `SELECT m.id, m.sender_id as "senderId", u.name as "senderName", 
+      `SELECT m.id, m.sender_id as "senderId", u.name as "senderName", u.avatar as "senderAvatar", 
               m.content, m.created_at as timestamp, m.metadata->>'status' as status,
               m.metadata->'attachment' as attachment
        FROM messages m
