@@ -460,6 +460,10 @@
     'sound-effects': true
   };
 
+  let activeTheme = 'light';
+  let activeAccentColor = '#004ad3';
+  let activeFontSize = 'medium';
+
   // Toast Functionality
   function showToast(message, type = 'success') {
     const toast = document.getElementById("system-toast");
@@ -482,35 +486,152 @@
     }, 3000);
   }
 
-  // Preference Toggle Trigger
-  function togglePref(key) {
-    preferences[key] = !preferences[key];
-    const btn = document.getElementById(`pref-btn-${key}`);
-    const circle = btn.querySelector("span");
+  // DOM Loaded Data Fetching
+  document.addEventListener("DOMContentLoaded", () => {
+    const token = new URLSearchParams(window.location.search).get('token') || sessionStorage.getItem('collabhub_token');
+    if (token) {
+      sessionStorage.setItem('collabhub_token', token);
+    }
 
-    if (preferences[key]) {
+    // 1. Fetch User Profile
+    fetch('/api/auth/me', {
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.success && data.user) {
+        const u = data.user;
+        document.getElementById("fullNameInput").value = u.name || '';
+        document.getElementById("usernameInput").value = u.username || '';
+        document.getElementById("bioInput").value = u.bio || '';
+        document.getElementById("bio-char-count").innerText = (u.bio || '').length;
+
+        activeTheme = u.theme || 'light';
+        activeAccentColor = u.accentColor || '#004ad3';
+        activeFontSize = u.fontSize || 'medium';
+
+        // Apply theme/accent/font states
+        toggleTheme(activeTheme);
+        setFontMode(activeFontSize);
+
+        const accentBtn = Array.from(document.querySelectorAll('.accent-color-btn')).find(btn => {
+          const attr = btn.getAttribute('onclick');
+          return attr && attr.includes(activeAccentColor);
+        });
+        if (accentBtn) {
+          const label = accentBtn.getAttribute('onclick').split("'")[3];
+          setAccent(activeAccentColor, label, accentBtn);
+        }
+
+        if (u.avatar) {
+          const imgUrl = u.avatar.startsWith('/uploads/') ? `${window.location.origin}${u.avatar}` : u.avatar;
+          document.getElementById("avatar-img-view").src = imgUrl;
+        }
+      }
+    })
+    .catch(err => console.error('Error fetching user profile:', err));
+
+    // 2. Fetch Notification preferences
+    fetch('/api/notifications/settings', {
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.success && data.data) {
+        const s = data.data;
+        preferences['new-messages'] = s.push_enabled ?? true;
+        preferences['sound-effects'] = s.sound ?? true;
+
+        updateToggleBtnStyle('new-messages', preferences['new-messages']);
+        updateToggleBtnStyle('sound-effects', preferences['sound-effects']);
+      }
+    })
+    .catch(err => console.error('Error fetching notification preferences:', err));
+  });
+
+  function updateToggleBtnStyle(key, val) {
+    const btn = document.getElementById(`pref-btn-${key}`);
+    if (!btn) return;
+    const circle = btn.querySelector("span");
+    if (val) {
       btn.className = "relative w-11 h-6 rounded-full transition-colors duration-300 flex items-center flex-shrink-0 cursor-pointer focus:outline-none bg-primary";
       circle.className = "w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 translate-x-[22px]";
-      showToast(`${key.replace('-', ' ')} enabled`, 'success');
     } else {
       btn.className = "relative w-11 h-6 rounded-full transition-colors duration-300 flex items-center flex-shrink-0 cursor-pointer focus:outline-none bg-outline-variant";
       circle.className = "w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 translate-x-[2px]";
-      showToast(`${key.replace('-', ' ')} disabled`, 'info');
     }
+  }
+
+  // Preference Toggle Trigger
+  function togglePref(key) {
+    preferences[key] = !preferences[key];
+    updateToggleBtnStyle(key, preferences[key]);
+
+    const token = sessionStorage.getItem('collabhub_token');
+    fetch('/api/notifications/settings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({
+        push_enabled: preferences['new-messages'],
+        sound: preferences['sound-effects']
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast(`${key.replace('-', ' ')} updated successfully`, 'success');
+      }
+    })
+    .catch(err => console.error('Error saving preference:', err));
   }
 
   // Form Reset
   function resetForm() {
-    document.getElementById("fullNameInput").value = "Alex Rivera";
-    document.getElementById("usernameInput").value = "arivera_dev";
-    document.getElementById("bioInput").value = "Senior Product Designer focused on creating seamless collaborative experiences at CollabHub.";
-    document.getElementById("bio-char-count").innerText = "124";
-    showToast("Form details reset!", "info");
+    window.location.reload();
   }
 
   // Save changes
   function saveProfile() {
-    showToast("Changes saved successfully!", "success");
+    const name = document.getElementById("fullNameInput").value;
+    const username = document.getElementById("usernameInput").value;
+    const bio = document.getElementById("bioInput").value;
+
+    const token = sessionStorage.getItem('collabhub_token');
+    fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({
+        name,
+        username,
+        bio,
+        theme: activeTheme,
+        accentColor: activeAccentColor,
+        fontSize: activeFontSize
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast("Profile changes saved successfully!", "success");
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        showToast(data.message || "Failed to update profile", "error");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      showToast("Network error saving profile changes", "error");
+    });
   }
 
   // File trigger & preview
@@ -542,6 +663,7 @@
 
   // Accent Switcher
   function setAccent(color, label, element) {
+    activeAccentColor = color;
     document.querySelectorAll('.accent-color-btn').forEach(btn => {
       btn.className = "aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn";
     });
@@ -552,6 +674,7 @@
 
   // Theme Toggler
   function toggleTheme(theme) {
+    activeTheme = theme;
     // Reset cards styling
     document.querySelectorAll('.theme-mode-btn').forEach(btn => {
       btn.className = "w-full flex items-center justify-between p-sm border rounded-lg transition-all cursor-pointer border-outline-variant/50 hover:border-primary text-on-surface-variant theme-mode-btn";
@@ -582,6 +705,7 @@
 
   // Font Adjuster
   function setFontMode(size) {
+    activeFontSize = size;
     document.getElementById("font-lbl-small").className = "cursor-pointer";
     document.getElementById("font-lbl-medium").className = "cursor-pointer";
     document.getElementById("font-lbl-large").className = "cursor-pointer";
