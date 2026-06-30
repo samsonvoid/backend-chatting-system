@@ -52,7 +52,7 @@ export default function registerChatHandlers(io, socket) {
             name: attachment.name,
             type: attachment.type || fileType,
             size: attachment.size,
-            url: `/uploads/${uniqueFilename}`
+            url: attachment.data
           };
         }
       } catch (fileErr) {

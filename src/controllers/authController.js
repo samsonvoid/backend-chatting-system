@@ -269,32 +269,9 @@ export async function updateUserProfile(req, res) {
     const updatedName = name.trim();
     let finalAvatar = avatar;
 
-    // Save custom base64 avatar images to uploads directory
+    // Save custom base64 avatar images directly in PostgreSQL database
     if (avatar && avatar.startsWith('data:image/')) {
-      try {
-        const match = avatar.match(/^data:(.+);base64,(.+)$/);
-        if (match) {
-          const fileType = match[1];
-          const base64Data = match[2];
-          const buffer = Buffer.from(base64Data, 'base64');
-          
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = path.dirname(__filename);
-          const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
-          if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-          }
-          
-          const extension = fileType.split('/')[1] || 'png';
-          const filename = `avatar-${req.user.id}-${Date.now()}.${extension}`;
-          const filePath = path.join(uploadsDir, filename);
-          fs.writeFileSync(filePath, buffer);
-          
-          finalAvatar = `/uploads/${filename}`;
-        }
-      } catch (err) {
-        console.error('[Auth Controller] Error saving avatar image upload:', err);
-      }
+      finalAvatar = avatar;
     } else if (!finalAvatar) {
       finalAvatar = getInitials(updatedName);
     }
