@@ -150,8 +150,9 @@
       <button class="p-2 text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-dim transition-colors rounded-full active:scale-95 transition-transform" onclick="showToast('Help block synchronized online.', 'info')">
         <span class="material-symbols-outlined">help_outline</span>
       </button>
-      <div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant ml-sm">
-        <img alt="User profile" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFRNhTNIhlTn0VLhQCMOT7TIk_pQZCO8UphzEVJadkbiWwTxytYSA0lKuVmta1OWaWsFIJmd-UrPPybkoYsbXCDXazAkhwDpf6QyML0prK89PlRGI7YNXgiceNShQfpy_-s9dM1DTUhcMuOE6yw286pEetUOkebYXLL9qWpGY0tuZc-STYmH4vOieMlYsqskfExIRFpTLnIXF1j1Kdm7wRRwLKECvtOFTKYb65Mn0D0KUB0ktn0Rzzi8kBtIthG7uEvWCfhY0eWXOq"/>
+      <div class="h-8 w-8 rounded-full border border-outline-variant ml-sm flex items-center justify-center bg-primary/10 text-primary font-bold text-xs select-none" id="header-avatar-container">
+        <img id="header-avatar-img" alt="User profile" class="h-full w-full object-cover hidden" src=""/>
+        <span id="header-avatar-text" class="uppercase">SA</span>
       </div>
     </div>
   </div>
@@ -180,10 +181,13 @@
       </div>
     </nav>
     <div class="px-6 mt-auto flex items-center gap-3">
-      <img alt="Admin User Avatar" class="w-10 h-10 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFRNhTNIhlTn0VLhQCMOT7TIk_pQZCO8UphzEVJadkbiWwTxytYSA0lKuVmta1OWaWsFIJmd-UrPPybkoYsbXCDXazAkhwDpf6QyML0prK89PlRGI7YNXgiceNShQfpy_-s9dM1DTUhcMuOE6yw286pEetUOkebYXLL9qWpGY0tuZc-STYmH4vOieMlYsqskfExIRFpTLnIXF1j1Kdm7wRRwLKECvtOFTKYb65Mn0D0KUB0ktn0Rzzi8kBtIthG7uEvWCfhY0eWXOq"/>
+      <div class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center bg-primary/10 text-primary font-bold text-sm select-none" id="sidebar-avatar-container">
+        <img id="sidebar-avatar-img" alt="Admin User Avatar" class="w-full h-full object-cover hidden" src=""/>
+        <span id="sidebar-avatar-text" class="uppercase">SA</span>
+      </div>
       <div>
-        <p class="font-label-md text-label-md">Alex Rivera</p>
-        <p class="font-label-sm text-label-sm text-outline">Superuser</p>
+        <p class="font-label-md text-label-md" id="sidebar-user-name">Samson Admin</p>
+        <p class="font-label-sm text-label-sm text-outline" id="sidebar-user-role">Superuser</p>
       </div>
     </div>
   </aside>
@@ -213,8 +217,9 @@
               <!-- Avatar -->
               <div class="flex flex-col items-center gap-md">
                 <div class="relative group">
-                  <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-high shadow-inner">
-                    <img id="avatar-img-view" alt="Current avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFRNhTNIhlTn0VLhQCMOT7TIk_pQZCO8UphzEVJadkbiWwTxytYSA0lKuVmta1OWaWsFIJmd-UrPPybkoYsbXCDXazAkhwDpf6QyML0prK89PlRGI7YNXgiceNShQfpy_-s9dM1DTUhcMuOE6yw286pEetUOkebYXLL9qWpGY0tuZc-STYmH4vOieMlYsqskfExIRFpTLnIXF1j1Kdm7wRRwLKECvtOFTKYb65Mn0D0KUB0ktn0Rzzi8kBtIthG7uEvWCfhY0eWXOq"/>
+                  <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-high shadow-inner flex items-center justify-center bg-primary/10 text-primary font-bold text-3xl select-none" id="avatar-container">
+                    <img id="avatar-img-view" alt="Current avatar" class="w-full h-full object-cover hidden" src=""/>
+                    <span id="avatar-fallback-text" class="uppercase">SA</span>
                   </div>
                   <button onclick="triggerAvatarUpload()" class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer border-2 border-white" title="Upload photo">
                     <span class="material-symbols-outlined text-[20px]">photo_camera</span>
@@ -269,14 +274,14 @@
               <div class="space-y-md border-b md:border-b-0 md:border-r border-outline-variant/20 pb-md md:pb-0 md:pr-md">
                 <h3 class="font-label-md text-label-md text-on-surface font-bold">Accent Color</h3>
                 <div class="grid grid-cols-4 gap-sm" id="accent-grid">
-                  <button onclick="setAccent('#004ad3', 'Default primary blue', this)" class="aspect-square w-9 h-9 rounded-full bg-[#004ad3] border-4 border-white shadow-sm ring-2 ring-primary scale-105 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#4648d4', 'Modern Indigo Accent', this)" class="aspect-square w-9 h-9 rounded-full bg-[#4648d4] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#005d86', 'Deep Teal Accent', this)" class="aspect-square w-9 h-9 rounded-full bg-[#005d86] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#ba1a1a', 'Vibrant Crimson Red', this)" class="aspect-square w-9 h-9 rounded-full bg-[#ba1a1a] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#2e7d32', 'Emerald Forest Green', this)" class="aspect-square w-9 h-9 rounded-full bg-[#2e7d32] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#ed6c02', 'Sunset Orange Accent', this)" class="aspect-square w-9 h-9 rounded-full bg-[#ed6c02] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#6750A4', 'Royal Purple Accent', this)" class="aspect-square w-9 h-9 rounded-full bg-[#6750A4] hover:scale-110 cursor-pointer accent-color-btn"></button>
-                  <button onclick="setAccent('#434656', 'Sleek Dark Accent', this)" class="aspect-square w-9 h-9 rounded-full bg-[#434656] hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#004ad3', 'Default primary blue', this)" style="background-color: #004ad3;" class="aspect-square w-9 h-9 rounded-full border-4 border-white shadow-sm ring-2 ring-primary scale-105 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#4648d4', 'Modern Indigo Accent', this)" style="background-color: #4648d4;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#005d86', 'Deep Teal Accent', this)" style="background-color: #005d86;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#ba1a1a', 'Vibrant Crimson Red', this)" style="background-color: #ba1a1a;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#2e7d32', 'Emerald Forest Green', this)" style="background-color: #2e7d32;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#ed6c02', 'Sunset Orange Accent', this)" style="background-color: #ed6c02;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#6750A4', 'Royal Purple Accent', this)" style="background-color: #6750A4;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
+                  <button onclick="setAccent('#434656', 'Sleek Dark Accent', this)" style="background-color: #434656;" class="aspect-square w-9 h-9 rounded-full hover:scale-110 cursor-pointer accent-color-btn"></button>
                 </div>
                 <p id="accent-label-text" class="font-label-sm text-label-sm text-primary font-medium">Default primary blue</p>
               </div>
@@ -525,10 +530,50 @@
           setAccent(activeAccentColor, label, accentBtn);
         }
 
-        if (u.avatar) {
-          const imgUrl = u.avatar.startsWith('/uploads/') ? `${window.location.origin}${u.avatar}` : u.avatar;
-          document.getElementById("avatar-img-view").src = imgUrl;
+        // Resolve user name initials for avatar fallback placeholders
+        const initials = (u.name || 'SA').split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase();
+
+        // 1. Sync Main Profile Detail Avatar
+        const mainImg = document.getElementById("avatar-img-view");
+        const mainFallback = document.getElementById("avatar-fallback-text");
+        if (u.avatar && (u.avatar.startsWith('http') || u.avatar.startsWith('/uploads/') || u.avatar.startsWith('data:image/'))) {
+          mainImg.src = u.avatar.startsWith('/uploads/') ? `${window.location.origin}${u.avatar}` : u.avatar;
+          mainImg.classList.remove("hidden");
+          mainFallback.classList.add("hidden");
+        } else {
+          mainImg.classList.add("hidden");
+          mainFallback.innerText = initials;
+          mainFallback.classList.remove("hidden");
         }
+
+        // 2. Sync Header Top-Right Avatar
+        const headerImg = document.getElementById("header-avatar-img");
+        const headerFallback = document.getElementById("header-avatar-text");
+        if (u.avatar && (u.avatar.startsWith('http') || u.avatar.startsWith('/uploads/') || u.avatar.startsWith('data:image/'))) {
+          headerImg.src = u.avatar.startsWith('/uploads/') ? `${window.location.origin}${u.avatar}` : u.avatar;
+          headerImg.classList.remove("hidden");
+          headerFallback.classList.add("hidden");
+        } else {
+          headerImg.classList.add("hidden");
+          headerFallback.innerText = initials;
+          headerFallback.classList.remove("hidden");
+        }
+
+        // 3. Sync Sidebar Bottom-Left Profile Card
+        const sidebarImg = document.getElementById("sidebar-avatar-img");
+        const sidebarFallback = document.getElementById("sidebar-avatar-text");
+        if (u.avatar && (u.avatar.startsWith('http') || u.avatar.startsWith('/uploads/') || u.avatar.startsWith('data:image/'))) {
+          sidebarImg.src = u.avatar.startsWith('/uploads/') ? `${window.location.origin}${u.avatar}` : u.avatar;
+          sidebarImg.classList.remove("hidden");
+          sidebarFallback.classList.add("hidden");
+        } else {
+          sidebarImg.classList.add("hidden");
+          sidebarFallback.innerText = initials;
+          sidebarFallback.classList.remove("hidden");
+        }
+
+        document.getElementById("sidebar-user-name").innerText = u.name || 'Admin';
+        document.getElementById("sidebar-user-role").innerText = u.role === 'admin' ? 'Superuser' : 'User';
       }
     })
     .catch(err => console.error('Error fetching user profile:', err));
