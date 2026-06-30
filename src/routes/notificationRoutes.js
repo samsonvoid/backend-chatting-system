@@ -7,6 +7,7 @@ import {
   getNotificationsList,
   markNotificationRead,
   markAllNotificationsRead,
+  markRoomNotificationsRead,
   getNotificationSettings,
   updateNotificationSettings,
   muteConversation,
@@ -27,6 +28,7 @@ router.post('/register-token', registerPushToken);
 router.post('/deregister-token', deregisterPushToken);
 router.get('/', getNotificationsList);
 router.put('/:id/read', markNotificationRead);
+router.put('/read-room/:roomId', markRoomNotificationsRead);
 router.put('/read-all', markAllNotificationsRead);
 router.get('/settings', getNotificationSettings);
 router.put('/settings', updateNotificationSettings);

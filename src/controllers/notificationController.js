@@ -115,6 +115,23 @@ export async function markAllNotificationsRead(req, res) {
   }
 }
 
+// Mark notifications for a specific room as read
+export async function markRoomNotificationsRead(req, res) {
+  const { roomId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    await pool.query(
+      'UPDATE notifications SET is_read = true WHERE receiver_id = $1 AND chat_id = $2',
+      [userId, roomId]
+    );
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking room notifications as read:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+}
+
 // Fetch user notification preferences
 export async function getNotificationSettings(req, res) {
   const userId = req.user.id;
