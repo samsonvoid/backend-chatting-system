@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>CollabMonitor API Documentation</title>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Custom Config -->
-<script id="tailwind-config">
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CollabMonitor API Documentation</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
         theme: {
@@ -72,7 +69,6 @@
             },
             "spacing": {
                     "margin-mobile": "16px",
-                    "xs": "4px",
                     "gutter": "16px",
                     "sm": "8px",
                     "unit": "4px",
@@ -109,21 +105,17 @@
         },
       }
     </script>
-<style>
+    <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        body { font-family: 'Geist', sans-serif; }
+        body { font-family: 'Geist', sans-serif; min-height: 100dvh; }
         .method-badge { min-width: 64px; text-align: center; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #c3c5d9; border-radius: 10px; }
-    </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-    @media (max-width: 767px) {
+        .method-get { background-color: #0284c7; }
+        .method-post { background-color: #16a34a; }
+        .method-put { background-color: #d97706; }
+        .method-delete { background-color: #dc2626; }
+        
         aside.active-mobile-sidebar {
             display: flex !important;
             position: fixed !important;
@@ -135,341 +127,909 @@
             width: 280px !important;
             box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1) !important;
         }
-    }
-  </style>
-  <script>
-      if (window.innerWidth >= 1024) {
-          window.location.replace("/api-docs?view=desktop");
-      }
-      window.addEventListener('resize', () => {
-          if (window.innerWidth >= 1024) {
-              window.location.replace("/api-docs?view=desktop");
-          }
-      });
-  </script>
-  </head>
+    </style>
+    <script>
+        if (window.innerWidth >= 1024) {
+            window.location.replace("/api-docs?view=desktop");
+        }
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                window.location.replace("/api-docs?view=desktop");
+            }
+        });
+    </script>
+</head>
 <body class="bg-surface text-on-surface">
+
 <!-- PREMIUM IN-SYSTEM FLOATING TOAST BANNER -->
 <div id="system-toast" class="fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 border border-white/10">
   <span id="toast-icon" class="material-symbols-outlined">info</span>
   <span id="toast-text" class="font-label-md text-label-md font-bold">Message</span>
 </div>
+
 <!-- TopAppBar -->
 <header class="bg-surface sticky top-0 z-50 flex justify-between items-center h-16 px-4 md:px-margin-desktop border-b border-outline-variant">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary md:hidden cursor-pointer" id="menu-toggle">menu</span>
-<h1 class="font-headline-md text-headline-md font-bold text-primary">CollabMonitor</h1>
-</div>
-<div class="hidden md:flex flex-1 max-w-md mx-8 relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="Search API endpoints..." type="text"/>
-</div>
-<div class="flex items-center gap-2">
-<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
-<span class="material-symbols-outlined text-on-surface-variant">health_and_safety</span>
-</button>
-<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
-<span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
-</button>
-<button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
-<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-</button>
-<div class="w-8 h-8 rounded-full bg-primary-fixed ml-2 overflow-hidden border border-outline-variant">
-<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional close-up headshot of a developer in a modern, brightly lit office environment. The individual is wearing a dark blue tech-casual shirt, with soft natural light highlighting their features. The background is a clean, minimalist software engineering workspace with subtle hints of code on monitors, adhering to a light-mode, high-efficiency aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1EIqg0mXYzp-OvzGXbezCn71n08jRdyPBHBuoCDylnxUDwuAZVcnTs_D03xkj08kSqtdzUnt7KnSzeWEakqnCjdCdSi4EUU_ZUP8L4TwdvgGBHcsvxfDsNZV3aIxf3gzRLkEblqCNFljX_IiU_nufvMDbMZdcMjbcSpkpVGxv56qRvCoSPvy83zLMHu_Icy3SPK0oZwync-r-BtebqD2BAS5f8eyquELJtrCVlNr88Jg-fNXBgAqd3B1RJJNsB9XrNYjCDvkD__3P"/>
-</div>
-</div>
+    <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-primary cursor-pointer" id="menu-toggle">menu</span>
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">CollabMonitor</h1>
+    </div>
+    <div class="flex items-center gap-2">
+        <button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
+            <span class="material-symbols-outlined text-on-surface-variant">health_and_safety</span>
+        </button>
+        <button class="hover:bg-surface-container-low rounded-full p-2 transition-opacity active:opacity-80">
+            <span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
+        </button>
+        <div class="w-8 h-8 rounded-full bg-primary-fixed overflow-hidden border border-outline-variant select-none">
+            <div class="w-full h-full bg-primary text-white font-bold flex items-center justify-center text-xs">AD</div>
+        </div>
+    </div>
 </header>
+
 <div class="flex">
-<!-- SideNavBar (Desktop Only initially, hidden for mobile logic) -->
-<aside class="hidden md:flex flex-col w-[280px] h-[calc(100vh-64px)] fixed left-0 top-16 border-r border-outline-variant bg-surface py-6 overflow-y-auto" id="app-sidebar">
-<div class="px-6 mb-8">
-<div class="flex items-center gap-3 mb-1">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
-<span class="font-headline-sm text-headline-sm text-primary">API v2.4.0</span>
+    <!-- SideNavBar (Mobile Toggleable Panel) -->
+    <aside class="hidden flex-col w-[280px] h-[calc(100vh-64px)] border-r border-outline-variant bg-surface py-6 overflow-y-auto" id="app-sidebar">
+        <div class="px-6 mb-8">
+            <div class="flex items-center gap-3 mb-1">
+                <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+                <span class="font-headline-sm text-headline-sm text-primary">API v2.4.0</span>
+            </div>
+            <p class="text-on-surface-variant text-label-sm">Standard Documentation</p>
+        </div>
+        <nav class="flex flex-col gap-1 px-4">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/status'">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Overview</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/admin'">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span>Management</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary border-l-[3px] border-primary transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/api-docs'">
+                <span class="material-symbols-outlined">api</span>
+                <span>API Reference</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/settings'">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="mt-8 px-6">
+            <h3 class="text-label-sm text-outline uppercase tracking-widest mb-4">API Sections</h3>
+            <div class="space-y-3" id="mobile-sidebar-groups-list">
+                <!-- Dynamic groups list -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 bg-background min-h-screen">
+        <div class="max-w-5xl mx-auto mb-10">
+            <div class="flex flex-col gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-2 flex-wrap">
+                        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">CollabHub API Reference</h2>
+                        <div class="flex gap-sm">
+                          <span class="px-2 py-0.5 bg-surface-container-highest rounded text-label-sm text-outline">1.0.0</span>
+                          <span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container rounded text-label-sm font-bold">OAS 3.0</span>
+                        </div>
+                    </div>
+                    <p class="text-body-md text-on-surface-variant">Production-Grade API Specification for CollabHub Team Collaboration Platform</p>
+                </div>
+                
+                <div class="relative w-full">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input id="mobile-api-search" oninput="filterMobileEndpoints()" class="w-full bg-white border border-outline-variant rounded-full py-2.5 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="Search API endpoints..." type="text"/>
+                </div>
+            </div>
+
+            <!-- Server Selector Card -->
+            <div class="bg-white p-4 rounded-xl border border-outline-variant shadow-sm mb-8">
+                <label class="block text-label-sm text-outline mb-2 font-bold uppercase tracking-wider">Servers</label>
+                <div class="relative w-full">
+                    <select class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2.5 pl-4 pr-10 text-body-md appearance-none focus:ring-2 focus:ring-primary focus:outline-none transition-all text-on-surface">
+                        <option>http://localhost:5000 - Development Server</option>
+                        <option>https://api.collabhub.com - Production Server</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">unfold_more</span>
+                </div>
+            </div>
+
+            <!-- API Sections rendering -->
+            <div id="mobile-endpoints-container" class="space-y-10">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </main>
 </div>
-<p class="text-on-surface-variant text-label-sm">Standard Documentation</p>
-</div>
-<nav class="flex flex-col gap-1 px-4">
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/status'">
-<span class="material-symbols-outlined">dashboard</span>
-<span>Overview</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/admin'">
-<span class="material-symbols-outlined">manage_accounts</span>
-<span>Management</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary border-l-[3px] border-primary transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/api-docs'">
-<span class="material-symbols-outlined">api</span>
-<span>API Reference</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors font-body-md text-body-md active:scale-[0.98] duration-150 cursor-pointer" onclick="window.location.href='/settings'">
-<span class="material-symbols-outlined">settings</span>
-<span>Settings</span>
-</a>
-</nav>
-<div class="mt-8 px-6">
-<h3 class="text-label-sm text-outline uppercase tracking-widest mb-4">Endpoints</h3>
-<div class="space-y-3">
-<div class="group cursor-pointer">
-<div class="flex items-center justify-between text-body-sm text-on-surface hover:text-primary transition-colors">
-<span>Authentication</span>
-<span class="material-symbols-outlined text-[18px]">expand_more</span>
-</div>
-</div>
-<div class="group cursor-pointer pl-2">
-<div class="flex items-center justify-between text-body-sm text-on-surface-variant hover:text-primary transition-colors">
-<span>Users</span>
-<span class="material-symbols-outlined text-[18px]">chevron_right</span>
-</div>
-</div>
-<div class="group cursor-pointer pl-2">
-<div class="flex items-center justify-between text-body-sm text-on-surface-variant hover:text-primary transition-colors">
-<span>Projects</span>
-<span class="material-symbols-outlined text-[18px]">chevron_right</span>
-</div>
-</div>
-</div>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="flex-1 md:ml-[280px] p-4 md:p-margin-desktop bg-background min-h-screen">
-<!-- Header Section -->
-<div class="max-w-5xl mx-auto mb-10">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-<div>
-<div class="flex items-center gap-3 mb-2">
-<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">CollabHub API Documentation</h2>
-<span class="px-2 py-0.5 bg-surface-container-highest rounded text-label-sm text-outline">1.0.0</span>
-<span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container rounded text-label-sm font-bold">OAS 3.0</span>
-</div>
-<p class="text-body-md text-on-surface-variant">Production-Grade API Specification for CollabHub Team Collaboration Platform</p>
-</div>
-<button class="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-secondary text-secondary font-bold rounded-lg hover:bg-secondary-container hover:text-white transition-all active:scale-[0.98]">
-<span>Authorize</span>
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock</span>
-</button>
-</div>
-<!-- Server Selector Card -->
-<div class="bg-white p-4 rounded-xl border border-outline-variant shadow-sm mb-12">
-<label class="block text-label-sm text-outline mb-2 font-bold uppercase tracking-wider">Servers</label>
-<div class="relative max-w-md">
-<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2.5 pl-4 pr-10 text-body-md appearance-none focus:ring-2 focus:ring-primary focus:outline-none transition-all">
-<option>http://localhost:5000 - Development Server</option>
-<option>https://api.collabhub.com - Production Server</option>
-<option>https://staging.collabhub.com - Staging Server</option>
-</select>
-<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">unfold_more</span>
-</div>
-</div>
-<!-- API Section: Authentication -->
-<section class="space-y-4">
-<div class="flex items-center justify-between py-4 border-b border-outline-variant mb-6">
-<h3 class="font-headline-sm text-headline-sm text-on-background">Authentication</h3>
-<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
-</div>
-<!-- Endpoint Item: Signup -->
-<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
-<div class="flex items-center gap-4 flex-1">
-<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
-<code class="text-body-md font-bold text-on-surface">/api/auth/signup</code>
-<span class="hidden md:inline text-body-sm text-on-surface-variant">Register a new user</span>
-</div>
-<div class="flex items-center justify-between md:justify-end gap-4">
-<span class="md:hidden text-body-sm text-on-surface-variant">Register a new user</span>
-<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-</div>
-</div>
-</div>
-<!-- Endpoint Item: Login -->
-<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
-<div class="flex items-center gap-4 flex-1">
-<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
-<code class="text-body-md font-bold text-on-surface">/api/auth/login</code>
-<span class="hidden md:inline text-body-sm text-on-surface-variant">Log in an existing user</span>
-</div>
-<div class="flex items-center justify-between md:justify-end gap-4">
-<span class="md:hidden text-body-sm text-on-surface-variant">Log in an existing user</span>
-<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-</div>
-</div>
-</div>
-<!-- Endpoint Item: Logout (Active/Expanded Preview) -->
-<div class="bg-white rounded-xl border-2 border-primary overflow-hidden shadow-lg">
-<div class="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-surface-container-low">
-<div class="flex items-center gap-4 flex-1">
-<span class="method-badge px-3 py-1 bg-tertiary text-on-tertiary rounded-md font-bold text-label-sm">POST</span>
-<code class="text-body-md font-bold text-on-surface">/api/auth/logout</code>
-<span class="hidden md:inline text-body-sm text-on-surface-variant">Log out the active session</span>
-</div>
-<div class="flex items-center justify-between md:justify-end gap-4">
-<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">lock</span>
-<span class="material-symbols-outlined text-primary">expand_less</span>
-</div>
-</div>
-<!-- Detailed View Content -->
-<div class="p-6 border-t border-outline-variant">
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-<div>
-<h4 class="font-headline-sm text-headline-sm mb-4">Parameters</h4>
-<div class="space-y-4">
-<div class="flex justify-between items-start border-b border-outline-variant pb-4">
-<div>
-<span class="font-bold text-body-md">session_id</span>
-<span class="text-error ml-2 text-label-sm font-bold">* required</span>
-<p class="text-body-sm text-on-surface-variant mt-1">The unique identifier for the user session to terminate.</p>
-</div>
-<span class="text-label-sm bg-surface-container px-2 py-1 rounded">string</span>
-</div>
-<div class="flex justify-between items-start border-b border-outline-variant pb-4">
-<div>
-<span class="font-bold text-body-md">global</span>
-<p class="text-body-sm text-on-surface-variant mt-1">If true, terminates all active sessions for this account.</p>
-</div>
-<span class="text-label-sm bg-surface-container px-2 py-1 rounded">boolean</span>
-</div>
-</div>
-<h4 class="font-headline-sm text-headline-sm mt-8 mb-4">Responses</h4>
-<div class="space-y-2">
-<div class="flex items-center gap-4 p-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
-<span class="font-bold">200</span>
-<span class="text-body-sm">Session successfully terminated</span>
-</div>
-<div class="flex items-center gap-4 p-3 bg-red-50 text-red-800 rounded-lg border border-red-200">
-<span class="font-bold">401</span>
-<span class="text-body-sm">Unauthorized access or invalid session</span>
-</div>
-</div>
-</div>
-<div class="bg-inverse-surface rounded-xl p-4 overflow-hidden">
-<div class="flex items-center justify-between mb-4">
-<span class="text-inverse-on-surface font-bold text-label-sm">Example Code</span>
-<div class="flex gap-2" id="mobile-docs-tabs">
-<button class="text-inverse-on-surface bg-white/10 px-3 py-1 rounded text-label-sm hover:bg-white/20 mobile-tab-btn cursor-pointer font-bold" data-lang="curl">CURL</button>
-<button class="text-inverse-on-surface/50 px-3 py-1 rounded text-label-sm hover:bg-white/10 transition-colors mobile-tab-btn cursor-pointer" data-lang="json">JSON</button>
-<button class="text-inverse-on-surface/50 px-3 py-1 rounded text-label-sm hover:bg-white/10 transition-colors mobile-tab-btn cursor-pointer" data-lang="js">JS</button>
-</div>
-</div>
-<pre class="text-blue-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet" id="mobile-snippet-curl">curl -X 'POST' \
-  'https://api.collabhub.com/api/auth/logout' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer YOUR_TOKEN' \
-  -d '{
-  "session_id": "sess_82jks92",
-  "global": false
-}'</pre>
-<pre class="text-yellow-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet hidden" id="mobile-snippet-json">{
-  "session_id": "sess_82jks92",
-  "global": false
-}</pre>
-<pre class="text-sky-300 font-mono text-body-sm leading-relaxed overflow-x-auto p-4 bg-black/20 rounded-lg mobile-code-snippet hidden" id="mobile-snippet-js">fetch('https://api.collabhub.com/api/auth/logout', {
-  method: 'POST',
-  headers: {
-    'accept': 'application/json',
-    'Authorization': 'Bearer YOUR_TOKEN'
-  },
-  body: JSON.stringify({
-    session_id: 'sess_82jks92',
-    global: false
-  })
-});</pre>
-</div>
-</div>
-</div>
-</div>
-<!-- Endpoint Item: Profile (GET) -->
-<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-<div class="flex flex-col md:flex-row md:items-center gap-4 p-4">
-<div class="flex items-center gap-4 flex-1">
-<span class="method-badge px-3 py-1 bg-primary text-on-primary rounded-md font-bold text-label-sm">GET</span>
-<code class="text-body-md font-bold text-on-surface">/api/auth/me</code>
-<span class="hidden md:inline text-body-sm text-on-surface-variant">Retrieve current authenticated user profile</span>
-</div>
-<div class="flex items-center justify-between md:justify-end gap-4">
-<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">lock</span>
-<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Bento Grid Extra Info (Modern Pattern) -->
-<section class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="md:col-span-2 p-8 bg-primary-container text-on-primary-container rounded-3xl relative overflow-hidden flex flex-col justify-between min-h-[300px]">
-<div class="relative z-10">
-<h3 class="font-headline-md text-headline-md mb-2">Build faster with SDKs</h3>
-<p class="text-body-lg opacity-90 max-w-md">Download our official libraries for JavaScript, Python, and Ruby to integrate CollabMonitor in minutes.</p>
-</div>
-<div class="flex gap-4 relative z-10 mt-6">
-<button class="bg-white text-primary px-6 py-2.5 rounded-full font-bold hover:bg-surface-container transition-colors shadow-sm">View GitHub</button>
-<button class="bg-white/20 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/30 transition-colors backdrop-blur-sm">Documentation</button>
-</div>
-<div class="absolute -right-10 -bottom-10 opacity-20 transform rotate-12">
-<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'wght' 700;">code</span>
-</div>
-</div>
-<div class="p-8 bg-white border border-outline-variant rounded-3xl flex flex-col items-center text-center justify-center">
-<div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
-<span class="material-symbols-outlined text-primary text-3xl">help</span>
-</div>
-<h4 class="font-headline-sm text-headline-sm mb-2">Need Help?</h4>
-<p class="text-body-sm text-on-surface-variant mb-6">Our support team is available 24/7 for technical questions and architectural advice.</p>
-<a class="text-primary font-bold hover:underline" href="#">Chat with us →</a>
-</div>
-</section>
-</div>
-</main>
-</div>
-<!-- Floating Action Button (Only for relevant contexts like adding a mock server) -->
-<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 md:hidden">
-<span class="material-symbols-outlined">add</span>
-</button>
 
 <script>
-    // Toast Functionality
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById("system-toast");
-      const icon = document.getElementById("toast-icon");
-      const text = document.getElementById("toast-text");
+    // Endpoints data specification (Shared array structure)
+    const endpoints = [
+        {
+            id: 'auth-signup',
+            group: 'Authentication',
+            method: 'POST',
+            path: '/api/auth/signup',
+            desc: 'Register a new user account',
+            detail: 'Registers a new user profile on the platform. It securely hashes the password using bcrypt (10 rounds) and generates an initials avatar automatically.',
+            auth: 'None',
+            parameters: [
+                { name: 'name', type: 'string', required: true, desc: 'Full name of the user (e.g. Kulwa Khalfan)' },
+                { name: 'email', type: 'string', required: true, desc: 'Unique account email address' },
+                { name: 'password', type: 'string', required: true, desc: 'Password string (min 6 characters)' }
+            ],
+            responses: [
+                { code: 201, desc: 'Account successfully created. Set-Cookie token headers injected.' },
+                { code: 400, desc: 'Missing required parameters, invalid formats, or email already registered.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/auth/signup \\\n  --header 'Content-Type: application/json' \\\n  --data '{\n    "name": "Kulwa Khalfan",\n    "email": "kulwa@collabhub.com",\n    "password": "password123"\n  }'`,
+                json: `{\n  "name": "Kulwa Khalfan",\n  "email": "kulwa@collabhub.com",\n  "password": "password123"\n}`,
+                javascript: `fetch('http://localhost:5000/api/auth/signup', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    name: 'Kulwa Khalfan',\n    email: 'kulwa@collabhub.com',\n    password: 'password123'\n  })\n})\n.then(res => res.json());`,
+                python: `import requests\nresponse = requests.post("http://localhost:5000/api/auth/signup", json={\n    "name": "Kulwa Khalfan",\n    "email": "kulwa@collabhub.com",\n    "password": "password123"\n})`,
+                go: `// Go API signup request example`,
+                response: `{\n  "success": true,\n  "message": "Account created successfully!",\n  "user": { "id": "u-123", "name": "Kulwa Khalfan", "email": "kulwa@collabhub.com" }\n}`
+            }
+        },
+        {
+            id: 'auth-login',
+            group: 'Authentication',
+            method: 'POST',
+            path: '/api/auth/login',
+            desc: 'Log in an existing user',
+            detail: 'Verifies credentials and issues a secure HttpOnly cookie session token named "token". Returns matching user record data.',
+            auth: 'None',
+            parameters: [
+                { name: 'email', type: 'string', required: true, desc: 'Registered user email' },
+                { name: 'password', type: 'string', required: true, desc: 'User password string' }
+            ],
+            responses: [
+                { code: 200, desc: 'Authenticated successfully. Session cookie set.' },
+                { code: 401, desc: 'Invalid credentials provided.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/auth/login \\\n  --header 'Content-Type: application/json' \\\n  --data '{\n    "email": "kulwa@collabhub.com",\n    "password": "password123"\n  }'`,
+                json: `{\n  "email": "kulwa@collabhub.com",\n  "password": "password123"\n}`,
+                javascript: `fetch('http://localhost:5000/api/auth/login', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ email: 'kulwa@collabhub.com', password: 'password123' })\n});`,
+                python: `import requests\n# Login request python implementation`,
+                go: `// Login Go request`,
+                response: `{\n  "success": true,\n  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI...",\n  "user": { "id": "u-123", "name": "Kulwa Khalfan" }\n}`
+            }
+        },
+        {
+            id: 'auth-logout',
+            group: 'Authentication',
+            method: 'POST',
+            path: '/api/auth/logout',
+            desc: 'Log out the active session',
+            detail: 'Terminates the active session by clearing the HttpOnly JWT cookie and marking the user as "offline" in PostgreSQL.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Logged out successfully.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/auth/logout \\\n  --header 'Authorization: Bearer YOUR_TOKEN'`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer YOUR_TOKEN' } });`,
+                python: `import requests\n# Logout requests python`,
+                go: `// Logout Go implementation`,
+                response: `{\n  "success": true,\n  "message": "User logged out successfully."\n}`
+            }
+        },
+        {
+            id: 'auth-me',
+            group: 'Authentication',
+            method: 'GET',
+            path: '/api/auth/me',
+            desc: 'Retrieve current user profile',
+            detail: 'Decodes the active token cookie to fetch user record profile and notification preferences.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Profile successfully loaded.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/auth/me \\\n  --header 'Authorization: Bearer YOUR_TOKEN'`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/auth/me', { headers: { 'Authorization': 'Bearer YOUR_TOKEN' } });`,
+                python: `import requests\n# Profile fetch python`,
+                go: `// Profile fetch Go`,
+                response: `{\n  "success": true,\n  "user": { "id": "u-123", "name": "Kulwa Khalfan", "role": "user" }\n}`
+            }
+        },
+        {
+            id: 'auth-profile',
+            group: 'Authentication',
+            method: 'PUT',
+            path: '/api/auth/profile',
+            desc: 'Update user profile & preferences',
+            detail: 'Modifies profile bio, status states, and user theme settings in PostgreSQL.',
+            auth: 'JWT Cookie',
+            parameters: [
+                { name: 'bio', type: 'string', required: false, desc: 'User biography description' },
+                { name: 'status', type: 'string', required: false, desc: 'Status (online, offline, away)' }
+            ],
+            responses: [
+                { code: 200, desc: 'Profile updated successfully.' }
+            ],
+            samples: {
+                curl: `curl --request PUT \\\n  --url http://localhost:5000/api/auth/profile \\\n  --header 'Content-Type: application/json' \\\n  --data '{"status": "away"}'`,
+                json: `{\n  "status": "away"\n}`,
+                javascript: `fetch('http://localhost:5000/api/auth/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'away' }) });`,
+                python: `import requests\n# Python profile update`,
+                go: `// Go profile update`,
+                response: `{\n  "success": true,\n  "message": "Profile updated successfully!"\n}`
+            }
+        },
+        {
+            id: 'auth-users',
+            group: 'Authentication',
+            method: 'GET',
+            path: '/api/auth/users',
+            desc: 'Get all company users directory',
+            detail: 'Returns workspace directory index listing for creating chats.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Directory loaded.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/auth/users`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/auth/users');`,
+                python: `import requests\n# Python users fetch`,
+                go: `// Go users fetch`,
+                response: `{\n  "success": true,\n  "users": [\n    { "id": "u-1", "name": "Kulwa Khalfan", "status": "online" }\n  ]\n}`
+            }
+        },
+        {
+            id: 'auth-admin-login',
+            group: 'Authentication',
+            method: 'POST',
+            path: '/api/auth/admin-login',
+            desc: 'Admin console form authentication',
+            detail: 'Authorizes administrator credentials for health monitoring access.',
+            auth: 'None',
+            parameters: [
+                { name: 'email', type: 'string', required: true, desc: 'Admin email' },
+                { name: 'password', type: 'string', required: true, desc: 'Admin password' }
+            ],
+            responses: [
+                { code: 302, desc: 'Success redirect to /admin.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/auth/admin-login \\\n  --data 'email=admin@company.com&password=password123'`,
+                json: null,
+                javascript: `// Form POST action`,
+                python: `import requests\n# Python admin login`,
+                go: `// Go admin login`,
+                response: `HTTP/1.1 302 Found\nLocation: /admin`
+            }
+        },
 
-      text.innerText = message;
-      icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+        // GROUP 2: CHATS & MESSAGES
+        {
+            id: 'chats-get',
+            group: 'Chats & Messages',
+            method: 'GET',
+            path: '/api/chats',
+            desc: 'Retrieve all user conversations',
+            detail: 'Fetches conversations list including last message text details, timestamps, and unread counts.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'List of chats returned.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/chats`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/chats');`,
+                python: `import requests\n# Python chats fetch`,
+                go: `// Go chats fetch`,
+                response: `[\n  { "id": "c-apollo", "type": "group", "unreadCount": 0 }\n]`
+            }
+        },
+        {
+            id: 'chats-post',
+            group: 'Chats & Messages',
+            method: 'POST',
+            path: '/api/chats',
+            desc: 'Create direct or group conversation',
+            detail: 'Establishes a new channel. Group channel creation is secure and restricted strictly to administrators ("admin" role).',
+            auth: 'JWT Cookie',
+            parameters: [
+                { name: 'type', type: 'string', required: true, desc: 'DM or Group' },
+                { name: 'members', type: 'array', required: true, desc: 'Participants array list' }
+            ],
+            responses: [
+                { code: 201, desc: 'Conversation successfully established.' },
+                { code: 403, desc: 'Forbidden. Group creation is restricted to admin role.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/chats \\\n  --data '{"type":"direct","members":["u-2"]}'`,
+                json: `{\n  "type": "direct",\n  "members": ["u-2"]\n}`,
+                javascript: `fetch('http://localhost:5000/api/chats', { method: 'POST', body: JSON.stringify({ type: 'direct', members: ['u-2'] }) });`,
+                python: `import requests\n# Python chats create`,
+                go: `// Go chats create`,
+                response: `{\n  "success": true,\n  "conversationId": "c-982489"\n}`
+            }
+        },
+        {
+            id: 'chats-messages',
+            group: 'Chats & Messages',
+            method: 'GET',
+            path: '/api/chats/:id/messages',
+            desc: 'Retrieve conversation messages history',
+            detail: 'Loads historical chat thread messages. Marks unread elements as read in PostgreSQL.',
+            auth: 'JWT Cookie',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'Conversation ID' }
+            ],
+            responses: [
+                { code: 200, desc: 'Messages history ordered.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/chats/c-apollo/messages`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/chats/c-apollo/messages');`,
+                python: `import requests\n# Python messages fetch`,
+                go: `// Go messages fetch`,
+                response: `[\n  { "id": 1, "senderName": "Jamal Msemo", "content": "Welcome" }\n]`
+            }
+        },
+        {
+            id: 'chats-shared-files',
+            group: 'Chats & Messages',
+            method: 'GET',
+            path: '/api/chats/shared-files',
+            desc: 'Fetch shared files and media',
+            detail: 'Extracts all media shared across user\'s conversations.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Files array returned.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/chats/shared-files`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/chats/shared-files');`,
+                python: `import requests\n# Python files fetch`,
+                go: `// Go files fetch`,
+                response: `[\n  { "fileName": "Project_Brief_v2.pdf", "fileUrl": "/uploads/123.pdf" }\n]`
+            }
+        },
+        {
+            id: 'chats-recent-activity',
+            group: 'Chats & Messages',
+            method: 'GET',
+            path: '/api/chats/recent-activity',
+            desc: 'Retrieve recent messages activity feed',
+            detail: 'Generates activity history for the home dashboard logs feed.',
+            auth: 'JWT Cookie',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Activity array loaded.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/chats/recent-activity`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/chats/recent-activity');`,
+                python: `import requests\n# Python activity fetch`,
+                go: `// Go activity fetch`,
+                response: `[\n  { "senderName": "Jamal Msemo", "content": "Hi there!" }\n]`
+            }
+        },
+        {
+            id: 'chats-search',
+            group: 'Chats & Messages',
+            method: 'GET',
+            path: '/api/chats/search',
+            desc: 'Search historical message content',
+            detail: 'Enables PostgreSQL text query similarity queries.',
+            auth: 'JWT Cookie',
+            parameters: [
+                { name: 'q', type: 'string', required: true, desc: 'Query string' }
+            ],
+            responses: [
+                { code: 200, desc: 'Search records.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/chats/search?q=Apollo`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/chats/search?q=Apollo');`,
+                python: `import requests\n# Python search query`,
+                go: `// Go search query`,
+                response: `[\n  { "messageId": 182, "content": "We need to finalize the Apollo sprint." }\n]`
+            }
+        },
 
-      toast.className = `fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
-        type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
-      }`;
+        // GROUP 3: SUPER ADMIN CONSOLE
+        {
+            id: 'admin-users',
+            group: 'Admin Console',
+            method: 'GET',
+            path: '/api/admin/users',
+            desc: 'Retrieve workspace users directory',
+            detail: 'Admin Only. Returns all users registered in the workspace, detailing system role and block state.',
+            auth: 'Super Admin Only',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Success.' },
+                { code: 403, desc: 'Forbidden.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/admin/users`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/users');`,
+                python: `import requests\n# Python admin fetch`,
+                go: `// Go admin fetch`,
+                response: `{\n  "success": true,\n  "users": [\n    { "id": "u-1", "name": "Kulwa Khalfan", "role": "admin" }\n  ]\n}`
+            }
+        },
+        {
+            id: 'admin-block',
+            group: 'Admin Console',
+            method: 'PUT',
+            path: '/api/admin/users/:id/block',
+            desc: 'Suspend or unblock a member account',
+            detail: 'Admin Only. Suspends or unblocks user, terminating socket sessions.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'User ID' }
+            ],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request PUT \\\n  --url http://localhost:5000/api/admin/users/u-67890/block`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/users/u-67890/block', { method: 'PUT' });`,
+                python: `import requests\n# Python user block`,
+                go: `// Go user block`,
+                response: `{\n  "success": true,\n  "isBlocked": true\n}`
+            }
+        },
+        {
+            id: 'admin-role',
+            group: 'Admin Console',
+            method: 'PUT',
+            path: '/api/admin/users/:id/role',
+            desc: 'Promote or demote user security role',
+            detail: 'Admin Only. Promotes or demotes user role between admin and user.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'User ID' }
+            ],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request PUT \\\n  --url http://localhost:5000/api/admin/users/u-67890/role`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/users/u-67890/role', { method: 'PUT' });`,
+                python: `import requests\n# Python user role`,
+                go: `// Go user role`,
+                response: `{\n  "success": true,\n  "role": "admin"\n}`
+            }
+        },
+        {
+            id: 'admin-delete',
+            group: 'Admin Console',
+            method: 'DELETE',
+            path: '/api/admin/users/:id',
+            desc: 'Permanently purge a member account',
+            detail: 'Admin Only. Purges profile, message history cascades in database.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'User ID' }
+            ],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request DELETE \\\n  --url http://localhost:5000/api/admin/users/u-67890`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/users/u-67890', { method: 'DELETE' });`,
+                python: `import requests\n# Python user delete`,
+                go: `// Go user delete`,
+                response: `{\n  "success": true,\n  "message": "User account and related data purged."\n}`
+            }
+        },
+        {
+            id: 'admin-stats',
+            group: 'Admin Console',
+            method: 'GET',
+            path: '/api/admin/stats',
+            desc: 'Retrieve dashboard metrics and analytics',
+            detail: 'Admin Only. Fetches CPU load, active connections, and database rows count.',
+            auth: 'Super Admin Only',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Analytics returned.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/admin/stats`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/stats');`,
+                python: `import requests\n# Python stats`,
+                go: `// Go stats`,
+                response: `{\n  "success": true,\n  "stats": { "totalUsers": 25, "onlineUsers": 7 }\n}`
+            }
+        },
+        {
+            id: 'admin-convs',
+            group: 'Admin Console',
+            method: 'GET',
+            path: '/api/admin/conversations',
+            desc: 'Retrieve all group conversations list',
+            detail: 'Admin Only. Returns all workspace group channels with details.',
+            auth: 'Super Admin Only',
+            parameters: [],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request GET \\\n  --url http://localhost:5000/api/admin/conversations`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/conversations');`,
+                python: `import requests\n# Python groups query`,
+                go: `// Go groups query`,
+                response: `{\n  "success": true,\n  "conversations": [{ "id": "c-apollo", "groupName": "Project Apollo" }]\n}`
+            }
+        },
+        {
+            id: 'admin-convs-post',
+            group: 'Admin Console',
+            method: 'POST',
+            path: '/api/admin/conversations',
+            desc: 'Create group conversation from console',
+            detail: 'Admin Only. Creates a group chatroom and populates it with members.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'groupName', type: 'string', required: true, desc: 'Group name string' },
+                { name: 'members', type: 'array', required: false, desc: 'User ID checklist' }
+            ],
+            responses: [
+                { code: 201, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request POST \\\n  --url http://localhost:5000/api/admin/conversations \\\n  --data '{"groupName": "Marketing", "members": ["u-2"]}'`,
+                json: `{\n  "groupName": "Marketing",\n  "members": ["u-2"]\n}`,
+                javascript: `fetch('http://localhost:5000/api/admin/conversations', { method: 'POST', body: JSON.stringify({ groupName: 'Marketing', members: ['u-2'] }) });`,
+                python: `import requests\n# Python admin create group`,
+                go: `// Go admin create group`,
+                response: `{\n  "success": true,\n  "conversationId": "c-marketing"\n}`
+            }
+        },
+        {
+            id: 'admin-convs-members',
+            group: 'Admin Console',
+            method: 'PUT',
+            path: '/api/admin/conversations/:id/members',
+            desc: 'Update group conversation membership',
+            detail: 'Admin Only. Synchronizes group membership checklist in the database.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'Group conversation ID' },
+                { name: 'members', type: 'array', required: true, desc: 'User ID checklist' }
+            ],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request PUT \\\n  --url http://localhost:5000/api/admin/conversations/c-apollo/members \\\n  --data '{"members": ["u-12345"]}'`,
+                json: `{\n  "members": ["u-12345"]\n}`,
+                javascript: `fetch('http://localhost:5000/api/admin/conversations/c-apollo/members', { method: 'PUT', body: JSON.stringify({ members: ['u-12345'] }) });`,
+                python: `import requests\n# Python members sync`,
+                go: `// Go members sync`,
+                response: `{\n  "success": true,\n  "message": "Group membership synchronized."\n}`
+            }
+        },
+        {
+            id: 'admin-convs-delete',
+            group: 'Admin Console',
+            method: 'DELETE',
+            path: '/api/admin/conversations/:id',
+            desc: 'Purge a group conversation entirely',
+            detail: 'Admin Only. Purges group conversation and cascades database messages.',
+            auth: 'Super Admin Only',
+            parameters: [
+                { name: 'id', type: 'string', required: true, desc: 'Group conversation ID' }
+            ],
+            responses: [
+                { code: 200, desc: 'Success.' }
+            ],
+            samples: {
+                curl: `curl --request DELETE \\\n  --url http://localhost:5000/api/admin/conversations/c-apollo`,
+                json: null,
+                javascript: `fetch('http://localhost:5000/api/admin/conversations/c-apollo', { method: 'DELETE' });`,
+                python: `import requests\n# Python group purge`,
+                go: `// Go group purge`,
+                response: `{\n  "success": true,\n  "message": "Group conversation deleted."\n}`
+            }
+        }
+    ];
 
-      setTimeout(() => {
-        toast.classList.add("opacity-0", "translate-y-[-100px]");
-        toast.classList.remove("translate-y-0");
-      }, 3000);
+    // Render group navigation in mobile sidebar
+    function renderMobileSidebarGroups() {
+        const groups = [...new Set(endpoints.map(e => e.group))];
+        const listContainer = document.getElementById('mobile-sidebar-groups-list');
+        listContainer.innerHTML = '';
+        
+        groups.forEach(gName => {
+            const anchor = document.createElement('a');
+            anchor.className = "block px-3 py-2 text-body-sm text-on-surface hover:bg-surface-container rounded-lg cursor-pointer transition-colors font-medium";
+            anchor.innerText = gName;
+            anchor.onclick = () => {
+                const groupEl = document.getElementById(`group-${gName.toLowerCase().replace(/\s+/g, '-')}`);
+                if (groupEl) {
+                    groupEl.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('app-sidebar').classList.remove('active-mobile-sidebar');
+                }
+            };
+            listContainer.appendChild(anchor);
+        });
     }
 
+    // Render mobile endpoints content cards
+    function renderMobileEndpoints(searchFilter = '') {
+        const container = document.getElementById('mobile-endpoints-container');
+        container.innerHTML = '';
+        
+        // Group endpoints
+        const groups = {};
+        endpoints.forEach(e => {
+            const matchesQuery = e.path.toLowerCase().includes(searchFilter) || 
+                                 e.desc.toLowerCase().includes(searchFilter) || 
+                                 e.group.toLowerCase().includes(searchFilter);
+            if (!matchesQuery) return;
+            
+            if (!groups[e.group]) {
+                groups[e.group] = [];
+            }
+            groups[e.group].push(e);
+        });
+        
+        const groupKeys = Object.keys(groups);
+        if (groupKeys.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-xl text-on-surface-variant space-y-md">
+                    <span class="material-symbols-outlined text-[48px] opacity-40">find_in_page</span>
+                    <p class="font-body-md">No matching API endpoints found in this workspace specification.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        groupKeys.forEach(gName => {
+            const section = document.createElement('div');
+            section.className = "space-y-4";
+            section.id = `group-${gName.toLowerCase().replace(/\s+/g, '-')}`;
+            
+            section.innerHTML = `
+                <h3 class="font-headline-sm text-headline-sm border-b border-outline-variant pb-2 text-on-background">${gName}</h3>
+                <div class="space-y-4" id="cards-container-${gName.toLowerCase().replace(/\s+/g, '-')}"></div>
+            `;
+            container.appendChild(section);
+            
+            const cardsContainer = document.getElementById(`cards-container-${gName.toLowerCase().replace(/\s+/g, '-')}`);
+            groups[gName].forEach(e => {
+                const card = document.createElement('div');
+                card.id = `card-${e.id}`;
+                card.className = "endpoint-card border border-outline-variant rounded-xl overflow-hidden bg-white hover:shadow-md transition-all duration-200 cursor-pointer";
+                
+                // Build Parameters Table HTML
+                let paramsHtml = '';
+                if (e.parameters && e.parameters.length > 0) {
+                    let rows = '';
+                    e.parameters.forEach(p => {
+                        rows += `
+                            <tr class="border-b border-outline-variant/30">
+                                <td class="py-2.5 font-mono text-on-surface font-semibold text-[11px]">${p.name} ${p.required ? '<span class="text-error font-bold">*</span>' : ''}</td>
+                                <td class="py-2.5 text-secondary italic text-[11px]">${p.type}</td>
+                                <td class="py-2.5 text-on-surface-variant text-[11px]">${p.desc}</td>
+                            </tr>
+                        `;
+                    });
+                    paramsHtml = `
+                        <div class="space-y-2 pt-2">
+                            <h4 class="font-label-sm text-label-sm font-bold text-outline uppercase tracking-wider">Request Parameters</h4>
+                            <div class="overflow-x-auto">
+                              <table class="w-full text-left border-collapse min-w-[320px]">
+                                  <thead>
+                                      <tr class="text-label-sm text-outline border-b border-outline-variant">
+                                          <th class="py-2 text-[10px]">Name</th>
+                                          <th class="py-2 text-[10px]">Type</th>
+                                          <th class="py-2 text-[10px]">Description</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody class="text-body-sm">${rows}</tbody>
+                              </table>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    paramsHtml = `
+                        <div class="pt-2">
+                            <h4 class="font-label-sm text-label-sm font-bold text-outline uppercase tracking-wider">Request Parameters</h4>
+                            <p class="text-body-sm text-on-surface-variant mt-1 italic">No parameters required.</p>
+                        </div>
+                    `;
+                }
+                
+                // Build Responses HTML
+                let responseRows = '';
+                e.responses.forEach(r => {
+                    const badgeColor = r.code >= 200 && r.code < 300 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200';
+                    responseRows += `
+                        <div class="p-2 bg-surface-container-low border border-outline-variant/50 rounded-lg flex items-start gap-3">
+                            <span class="px-2 py-0.5 border font-bold rounded text-[10px] ${badgeColor}">${r.code}</span>
+                            <span class="text-xs text-on-surface-variant">${r.desc}</span>
+                        </div>
+                    `;
+                });
+                
+                const responseHtml = `
+                    <div class="space-y-2 pt-2">
+                        <h4 class="font-label-sm text-label-sm font-bold text-outline uppercase tracking-wider">Responses</h4>
+                        <div class="space-y-1">${responseRows}</div>
+                    </div>
+                `;
+                
+                // Build Inline Playground Code HTML
+                const jsonTabStyle = e.samples.json ? '' : 'display:none;';
+                const playgroundHtml = `
+                    <div class="bg-inverse-surface rounded-xl p-4 overflow-hidden mt-4 text-slate-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-inverse-on-surface font-bold text-[10px] uppercase tracking-wider">Example Code</span>
+                            <div class="flex gap-2">
+                                <button id="tab-${e.id}-curl" onclick="switchMobileLang('${e.id}', 'curl', event)" class="bg-white/10 text-inverse-on-surface px-2.5 py-0.5 rounded text-[10px] font-bold" data-lang="curl">cURL</button>
+                                <button id="tab-${e.id}-json" style="${jsonTabStyle}" onclick="switchMobileLang('${e.id}', 'json', event)" class="text-inverse-on-surface/50 px-2.5 py-0.5 rounded text-[10px] font-bold" data-lang="json">JSON</button>
+                                <button id="tab-${e.id}-javascript" onclick="switchMobileLang('${e.id}', 'javascript', event)" class="text-inverse-on-surface/50 px-2.5 py-0.5 rounded text-[10px] font-bold" data-lang="javascript">JS</button>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <pre class="text-blue-300 font-mono text-xs leading-relaxed overflow-x-auto p-3 bg-black/20 rounded-lg max-h-48" id="snippet-${e.id}-curl">${e.samples.curl}</pre>
+                            ${e.samples.json ? `<pre class="text-yellow-300 font-mono text-xs leading-relaxed overflow-x-auto p-3 bg-black/20 rounded-lg max-h-48 hidden" id="snippet-${e.id}-json">${e.samples.json}</pre>` : ''}
+                            <pre class="text-sky-300 font-mono text-xs leading-relaxed overflow-x-auto p-3 bg-black/20 rounded-lg max-h-48 hidden" id="snippet-${e.id}-javascript">${e.samples.javascript}</pre>
+                        </div>
+                        <h5 class="text-[9px] uppercase tracking-widest text-slate-500 mb-2 mt-4">Response Sample (200 OK)</h5>
+                        <pre class="text-sky-400 font-mono text-xs leading-relaxed overflow-x-auto p-3 bg-black/20 rounded-lg max-h-48">${e.samples.response}</pre>
+                    </div>
+                `;
+                
+                const authIcon = e.auth === 'Super Admin Only' 
+                    ? '<span class="material-symbols-outlined text-red-500 text-[18px] select-none" title="Super Admin Only">security</span>' 
+                    : e.auth === 'JWT Cookie' 
+                    ? '<span class="material-symbols-outlined text-slate-500 text-[18px] select-none" title="Protected Route">lock</span>'
+                    : '';
+                
+                card.innerHTML = `
+                    <div onclick="toggleMobileCard('${e.id}')" class="flex items-center justify-between p-4 bg-surface-container-low border-b border-outline-variant select-none">
+                        <div class="flex items-center gap-3">
+                            <span class="method-badge px-2 py-0.5 text-white text-[10px] font-bold rounded uppercase method-${e.method.toLowerCase()}">${e.method}</span>
+                            <code class="text-xs font-mono font-bold text-on-surface">${e.path}</code>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${authIcon}
+                            <span id="icon-${e.id}" class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span>
+                        </div>
+                    </div>
+                    <div id="details-${e.id}" class="hidden p-4 space-y-4 border-t border-outline-variant/30 bg-white">
+                        <p class="text-xs text-on-surface-variant font-medium">${e.detail}</p>
+                        <div class="grid grid-cols-2 gap-md py-2 border-t border-b border-slate-50 text-[10px]">
+                            <div>
+                                <span class="font-bold text-outline block">Authorization</span>
+                                <span class="font-bold text-primary">${e.auth}</span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-outline block">Base Route</span>
+                                <span class="font-bold text-on-surface font-mono">${e.path}</span>
+                            </div>
+                        </div>
+                        ${paramsHtml}
+                        ${responseHtml}
+                        ${playgroundHtml}
+                    </div>
+                `;
+                
+                cardsContainer.appendChild(card);
+            });
+        });
+    }
+
+    // Toggle collapsible card details on mobile
+    function toggleMobileCard(id) {
+        const details = document.getElementById(`details-${id}`);
+        const card = document.getElementById(`card-${id}`);
+        const icon = document.getElementById(`icon-${id}`);
+        
+        const isCurrentlyExpanded = !details.classList.contains('hidden');
+        
+        // Collapse all others
+        document.querySelectorAll('.endpoint-card').forEach(c => {
+            c.classList.remove('border-2', 'border-primary', 'shadow-md');
+        });
+        document.querySelectorAll('[id^="details-"]').forEach(d => {
+            d.classList.add('hidden');
+        });
+        document.querySelectorAll('[id^="icon-"]').forEach(i => {
+            i.innerText = 'expand_more';
+        });
+
+        if (!isCurrentlyExpanded) {
+            // Expand this card
+            card.classList.add('border-2', 'border-primary', 'shadow-md');
+            details.classList.remove('hidden');
+            icon.innerText = 'expand_less';
+            
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    // Switch lang inline tabs on mobile card
+    function switchMobileLang(endpointId, lang, event) {
+        event.stopPropagation(); // Avoid triggering parent toggleMobileCard
+        
+        const tabContainer = event.currentTarget.parentNode;
+        tabContainer.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('bg-white/10', 'text-inverse-on-surface');
+            btn.classList.add('text-inverse-on-surface/50');
+        });
+        
+        const activeBtn = document.getElementById(`tab-${endpointId}-${lang}`);
+        activeBtn.classList.add('bg-white/10', 'text-inverse-on-surface');
+        activeBtn.classList.remove('text-inverse-on-surface/50');
+        
+        // Toggle corresponding snippet pre blocks
+        const curlSnippet = document.getElementById(`snippet-${endpointId}-curl`);
+        const jsonSnippet = document.getElementById(`snippet-${endpointId}-json`);
+        const jsSnippet = document.getElementById(`snippet-${endpointId}-javascript`);
+        
+        if (curlSnippet) curlSnippet.classList.add('hidden');
+        if (jsonSnippet) jsonSnippet.classList.add('hidden');
+        if (jsSnippet) jsSnippet.classList.add('hidden');
+        
+        const activeSnippet = document.getElementById(`snippet-${endpointId}-${lang}`);
+        if (activeSnippet) activeSnippet.classList.remove('hidden');
+    }
+
+    // Search bar filter handler on mobile
+    function filterMobileEndpoints() {
+        const query = document.getElementById('mobile-api-search').value.toLowerCase().trim();
+        renderMobileEndpoints(query);
+    }
+
+    // Toast Alert
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById("system-toast");
+        const icon = document.getElementById("toast-icon");
+        const text = document.getElementById("toast-text");
+
+        text.innerText = message;
+        icon.innerText = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+
+        toast.className = `fixed top-4 left-4 right-4 px-md py-sm rounded-lg shadow-xl flex items-center gap-sm z-50 transition-all duration-300 transform translate-y-0 opacity-100 border border-white/10 ${
+            type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-primary text-white'
+        }`;
+
+        setTimeout(() => {
+            toast.classList.add("opacity-0", "translate-y-[-100px]");
+            toast.classList.remove("translate-y-0");
+        }, 3000);
+    }
+
+    // Menu sidebar toggle
     document.getElementById('menu-toggle').addEventListener('click', () => {
         document.getElementById('app-sidebar').classList.toggle('active-mobile-sidebar');
     });
 
-    // Tab switcher logic
-    const mTabButtons = document.querySelectorAll('#mobile-docs-tabs .mobile-tab-btn');
-    const mCodeSnippets = document.querySelectorAll('.mobile-code-snippet');
-    
-    mTabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Deactivate all buttons
-        mTabButtons.forEach(b => {
-          b.classList.remove('bg-white/10', 'text-inverse-on-surface', 'font-bold');
-          b.classList.add('text-inverse-on-surface/50');
-        });
-        // Activate clicked button
-        btn.classList.add('bg-white/10', 'text-inverse-on-surface', 'font-bold');
-        btn.classList.remove('text-inverse-on-surface/50');
-        
-        // Hide all snippets
-        mCodeSnippets.forEach(s => s.classList.add('hidden'));
-        // Show clicked snippet
-        const targetLang = btn.getAttribute('data-lang').toLowerCase();
-        document.getElementById(`mobile-snippet-${targetLang}`).classList.remove('hidden');
-      });
-    });
+    // Initialize layout rendering
+    renderMobileSidebarGroups();
+    renderMobileEndpoints();
 </script>
-</body></html> 
+</body>
+</html>

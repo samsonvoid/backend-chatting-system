@@ -1,4 +1,4 @@
 # Hii by samsonvoid
 node_modules/    # Hii itapuuza folda nzima ya node_modules
 .env             # Hii itapuuza faili lenye siri zako (API keys/passwords)
-*.log            # Hii itapuuza faili zote zinazoishia na .log
+*.log            # Hii itapuuza faili zote zinazoishia na .log.vapid-keys.json

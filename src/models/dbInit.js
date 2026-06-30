@@ -84,6 +84,46 @@ export async function initializeDatabase() {
         "ALTER TABLE conversations ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false",
         "ALTER TABLE users ALTER COLUMN avatar TYPE TEXT",
         "ALTER TABLE conversations ALTER COLUMN group_avatar TYPE TEXT",
+        `CREATE TABLE IF NOT EXISTS notifications (
+          id VARCHAR(255) PRIMARY KEY,
+          receiver_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+          sender_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+          type VARCHAR(50) NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          body TEXT NOT NULL,
+          chat_id VARCHAR(255) REFERENCES conversations(id) ON DELETE CASCADE,
+          message_id VARCHAR(255) REFERENCES messages(id) ON DELETE CASCADE,
+          is_read BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS user_notification_settings (
+          user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          sound BOOLEAN DEFAULT true,
+          vibration BOOLEAN DEFAULT true,
+          popup BOOLEAN DEFAULT true,
+          show_preview BOOLEAN DEFAULT true,
+          mute_until TIMESTAMP NULL,
+          push_enabled BOOLEAN DEFAULT true,
+          email_enabled BOOLEAN DEFAULT true,
+          dnd_start TIME NULL,
+          dnd_end TIME NULL
+        )`,
+        `CREATE TABLE IF NOT EXISTS push_tokens (
+          id VARCHAR(255) PRIMARY KEY,
+          user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+          device_token TEXT NOT NULL,
+          device_type VARCHAR(50) DEFAULT 'browser',
+          last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT unique_user_device_token UNIQUE (user_id, device_token)
+        )`,
+        `CREATE TABLE IF NOT EXISTS conversation_mute (
+          conversation_id VARCHAR(255) REFERENCES conversations(id) ON DELETE CASCADE,
+          user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+          mute_until TIMESTAMP NOT NULL,
+          PRIMARY KEY (conversation_id, user_id)
+        )`,
+        "CREATE INDEX IF NOT EXISTS idx_notifications_receiver_read ON notifications (receiver_id, is_read)"
       ];
       for (const sql of migrations) {
         await pool.query(sql);
@@ -126,7 +166,16 @@ export async function initializeDatabase() {
         [u.id, u.name, u.email, u.passwordHash, u.avatar, u.status]
       );
     }
-    console.log('Users seeded successfully.');
+    
+    // Ensure all users (seeded or pre-existing) have user_notification_settings
+    const allUsersResult = await pool.query('SELECT id FROM users');
+    for (const row of allUsersResult.rows) {
+      await pool.query(
+        'INSERT INTO user_notification_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING',
+        [row.id]
+      );
+    }
+    console.log('Users and notification settings seeded successfully.');
 
     // E. Seed Conversations
     const chats = [

@@ -2,6 +2,7 @@ import pool from '../models/db.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { sendNotification } from '../services/notificationService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,6 +94,82 @@ export default function registerChatHandlers(io, socket) {
       // C. Broadcast the new message to everyone in that conversation room
       io.to(conversationId).emit('message-received', newMessage);
       console.log(`[Socket] Message from ${senderName} persisted and sent to room ${conversationId}`);
+
+      // D. Dispatch notifications for other participants
+      const participantsResult = await pool.query(
+        'SELECT user_id FROM conversation_users WHERE conversation_id = $1 AND user_id != $2',
+        [conversationId, senderId]
+      );
+
+      const activeSockets = Array.from(io.sockets.sockets.values());
+
+      for (const p of participantsResult.rows) {
+        const participantId = p.user_id;
+
+        // Check if participant is connected to sockets
+        const pSockets = activeSockets.filter(s => s.user && s.user.id === participantId);
+        const isOnline = pSockets.length > 0;
+
+        // Check if participant has joined the specific chat room
+        const isInRoom = pSockets.some(s => s.rooms.has(conversationId));
+
+        if (isOnline && isInRoom) {
+          // Already viewing the chat, no notification needed
+          continue;
+        }
+
+        // Get conversation details for naming
+        const convResult = await pool.query('SELECT type, group_name FROM conversations WHERE id = $1', [conversationId]);
+        const convType = convResult.rows[0]?.type || 'direct';
+        const groupName = convResult.rows[0]?.group_name;
+
+        const notifTitle = convType === 'group' 
+          ? `New message in ${groupName || 'Group'}` 
+          : `Message from ${senderName}`;
+        
+        const notifBody = content.trim() || (attachmentInfo ? 'Sent an attachment' : 'New message');
+
+        if (isOnline && !isInRoom) {
+          // Level 1: In-app real-time notification (toast + chime in their active view)
+          for (const s of pSockets) {
+            s.emit('notification-received', {
+              id: `n-${Date.now()}`,
+              senderId,
+              senderName,
+              senderAvatar,
+              type: 'message',
+              title: notifTitle,
+              body: notifBody,
+              chatId: conversationId,
+              messageId
+            });
+          }
+
+          // Save notification in database, skip sending standard push since they are currently online
+          await sendNotification({
+            receiverId: participantId,
+            senderId,
+            type: 'message',
+            title: notifTitle,
+            body: notifBody,
+            chatId: conversationId,
+            messageId,
+            priority: 'High'
+          });
+        } else {
+          // Level 2: Offline push notification
+          await sendNotification({
+            receiverId: participantId,
+            senderId,
+            type: 'message',
+            title: notifTitle,
+            body: notifBody,
+            chatId: conversationId,
+            messageId,
+            priority: 'High'
+          });
+        }
+      }
 
     } catch (error) {
       console.error('[Socket] Error persisting and broadcasting message:', error);

@@ -96,6 +96,12 @@ export async function registerUser(req, res) {
       [userId]
     );
 
+    // 5.6. Initialize default user notification settings
+    await pool.query(
+      'INSERT INTO user_notification_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING',
+      [userId]
+    );
+
     // 6. Generate signed JWT token and set in HttpOnly cookie
     const token = setTokenCookie(res, userId);
 
