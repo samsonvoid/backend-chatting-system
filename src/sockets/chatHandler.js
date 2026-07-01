@@ -23,7 +23,7 @@ export default function registerChatHandlers(io, socket) {
 
   // 3. Client sends a real-time message
   socket.on('send-message', async (data) => {
-    const { conversationId, senderId, content, tempId, attachment } = data;
+    const { conversationId, senderId, content, tempId, attachment, metadata: clientMetadata } = data;
     if (!conversationId || !senderId || (!content.trim() && !attachment)) return;
 
     const messageId = `m${Date.now()}`;
@@ -62,7 +62,8 @@ export default function registerChatHandlers(io, socket) {
 
     const metadata = { 
       status: 'sent',
-      ...(attachmentInfo ? { attachment: attachmentInfo } : {})
+      ...(attachmentInfo ? { attachment: attachmentInfo } : {}),
+      ...(clientMetadata || {})
     };
 
     try {
@@ -88,6 +89,7 @@ export default function registerChatHandlers(io, socket) {
         timestamp,
         status: 'sent',
         attachment: attachmentInfo || undefined,
+        metadata: metadata,
         tempId
       };
 

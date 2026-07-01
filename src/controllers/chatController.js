@@ -146,11 +146,10 @@ export async function getChatMessages(req, res) {
       [conversationId, userId]
     );
 
-    // 2. Fetch all messages (Ordered oldest to newest for chat UI)
     const { rows: messages } = await pool.query(
       `SELECT m.id, m.sender_id as "senderId", u.name as "senderName", u.avatar as "senderAvatar", 
               m.content, m.created_at as timestamp, m.metadata->>'status' as status,
-              m.metadata->'attachment' as attachment
+              m.metadata->'attachment' as attachment, m.metadata as metadata
        FROM messages m
        JOIN users u ON m.sender_id = u.id
        WHERE m.conversation_id = $1
