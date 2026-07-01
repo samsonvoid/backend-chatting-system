@@ -146,17 +146,37 @@ export async function getChatMessages(req, res) {
       [conversationId, userId]
     );
 
-    const { rows: messages } = await pool.query(
-      `SELECT m.id, m.sender_id as "senderId", u.name as "senderName", u.avatar as "senderAvatar", 
-              m.content, m.created_at as timestamp, m.metadata->>'status' as status,
-              m.metadata->'attachment' as attachment, m.metadata as metadata
-       FROM messages m
-       JOIN users u ON m.sender_id = u.id
-       WHERE m.conversation_id = $1
-       ORDER BY m.created_at DESC
-       LIMIT 50`,
-      [conversationId]
-    );
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const before = req.query.before;
+
+    let queryText = '';
+    let queryParams = [];
+
+    if (before) {
+      queryText = `
+        SELECT m.id, m.sender_id as "senderId", u.name as "senderName", u.avatar as "senderAvatar", 
+               m.content, m.created_at as timestamp, m.metadata->>'status' as status,
+               m.metadata->'attachment' as attachment, m.metadata as metadata
+        FROM messages m
+        JOIN users u ON m.sender_id = u.id
+        WHERE m.conversation_id = $1 AND m.created_at < $2
+        ORDER BY m.created_at DESC
+        LIMIT $3`;
+      queryParams = [conversationId, before, limit];
+    } else {
+      queryText = `
+        SELECT m.id, m.sender_id as "senderId", u.name as "senderName", u.avatar as "senderAvatar", 
+               m.content, m.created_at as timestamp, m.metadata->>'status' as status,
+               m.metadata->'attachment' as attachment, m.metadata as metadata
+        FROM messages m
+        JOIN users u ON m.sender_id = u.id
+        WHERE m.conversation_id = $1
+        ORDER BY m.created_at DESC
+        LIMIT $2`;
+      queryParams = [conversationId, limit];
+    }
+
+    const { rows: messages } = await pool.query(queryText, queryParams);
 
     // Reverse the array to maintain chronological order in the chat window viewport
     messages.reverse();
