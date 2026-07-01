@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { superAdminProtect } from '../middlewares/authMiddleware.js';
 import pool from '../models/db.js';
+import fs from 'fs';
+import path from 'path';
 
 const router = Router();
 
@@ -337,6 +339,76 @@ router.delete('/conversations/:id', async (req, res) => {
   } catch (error) {
     console.error('[Admin API] DeleteConversation error:', error);
     res.status(500).json({ success: false, message: 'Failed to delete group.' });
+  }
+});
+
+/**
+ * @desc    Prune old attachments (older than X days) to save storage
+ * @route   POST /api/admin/prune-attachments
+ */
+router.post('/prune-attachments', async (req, res) => {
+  try {
+    const days = parseInt(req.body.days || '14');
+    if (isNaN(days) || days < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid days threshold.' });
+    }
+
+    // 1. Fetch all messages containing attachments older than threshold
+    const { rows: messages } = await pool.query(
+      `SELECT id, metadata->'attachment'->>'url' as url, metadata
+       FROM messages
+       WHERE (metadata->'attachment'->>'url') IS NOT NULL
+         AND (metadata->'attachment'->>'url') != 'expired'
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
+      [days]
+    );
+
+    let prunedCount = 0;
+    const uploadDir = path.join(process.cwd(), 'uploads');
+
+    for (const msg of messages) {
+      const fileUrl = msg.url;
+      
+      // If file is stored locally, delete it from disk
+      if (fileUrl && fileUrl.startsWith('/uploads/')) {
+        const fileName = fileUrl.replace('/uploads/', '');
+        const filePath = path.join(uploadDir, fileName);
+        
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (fileErr) {
+          console.error(`[Admin API] Failed to delete file on disk: ${filePath}`, fileErr);
+        }
+      }
+
+      // 2. Update database record: change attachment url to 'expired'
+      const updatedMetadata = {
+        ...msg.metadata,
+        attachment: {
+          ...msg.metadata.attachment,
+          url: 'expired'
+        }
+      };
+
+      await pool.query(
+        'UPDATE messages SET metadata = $1 WHERE id = $2',
+        [JSON.stringify(updatedMetadata), msg.id]
+      );
+
+      prunedCount++;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Pruning complete. Successfully purged ${prunedCount} attachment files from server storage.`,
+      prunedCount
+    });
+
+  } catch (error) {
+    console.error('[Admin API] PruneAttachments error:', error);
+    res.status(500).json({ success: false, message: 'Failed to run storage pruning task.' });
   }
 });
 
