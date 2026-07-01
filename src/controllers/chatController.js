@@ -153,9 +153,13 @@ export async function getChatMessages(req, res) {
        FROM messages m
        JOIN users u ON m.sender_id = u.id
        WHERE m.conversation_id = $1
-       ORDER BY m.created_at ASC`,
+       ORDER BY m.created_at DESC
+       LIMIT 50`,
       [conversationId]
     );
+
+    // Reverse the array to maintain chronological order in the chat window viewport
+    messages.reverse();
 
     return res.status(200).json(messages);
 
